@@ -82,14 +82,14 @@ if (hasGsap && hasScrollTrigger) {
         gsap.set(".scroll-two", { autoAlpha: 1 });
 
         gsap.set([
-            ".scroll-one .scroll-header",
+            ".scroll-one .scroll-two-header",
             ".scroll-one .story-nav",
             ".scroll-one .story-copy",
             ".scroll-one .detail-card",
             ".scroll-one .scroll-footer"
         ], { opacity: 0 });
 
-        gsap.set(".scroll-one .scroll-header", { y: 36 });
+        gsap.set(".scroll-one .scroll-two-header", { y: -25 });
         gsap.set(".scroll-one .story-nav", { x: -50 });
         gsap.set(".scroll-one .story-copy", { scale: 0.94 });
         gsap.set(".scroll-one .detail-card", { x: 50, filter: "blur(6px)" });
@@ -142,7 +142,7 @@ if (hasGsap && hasScrollTrigger) {
             duration: 0.3
         }, 0);
 
-        openingTimeline.to(".hero .navbar", {
+        openingTimeline.to(".hero .hero-header", {
             autoAlpha: 0,
             y: -26,
             duration: 0.1,
@@ -171,7 +171,7 @@ if (hasGsap && hasScrollTrigger) {
             duration: 0.5
         }, 0);
 
-        openingTimeline.to(".scroll-one .scroll-header", {
+        openingTimeline.to(".scroll-one .scroll-two-header", {
             opacity: 1,
             y: 0,
             duration: 0.08,
@@ -211,7 +211,7 @@ if (hasGsap && hasScrollTrigger) {
         // The first street is pushed through and dissolved out while the next
         // background is already scaling up underneath it. No viewport of
         // travel or empty space separates the two pages.
-        openingTimeline.to(".scroll-one .scroll-header", {
+        openingTimeline.to(".scroll-one .scroll-two-header", {
             autoAlpha: 0,
             y: -24,
             duration: 0.08,
@@ -423,7 +423,7 @@ s2StartButtons.forEach((s2StartButton) => {
 });
 
 // ==========================================
-// Lisbon local clock
+// Local clock based on user timezone
 // ==========================================
 
 function updateLocalClock() {
@@ -431,7 +431,6 @@ function updateLocalClock() {
     if (!clocks.length) return;
 
     const time = new Intl.DateTimeFormat("en-GB", {
-        timeZone: "Europe/Lisbon",
         hour: "2-digit",
         minute: "2-digit",
         hour12: false
@@ -452,7 +451,12 @@ setInterval(updateLocalClock, 60000);
 // Both pages use the same control, so they stay in sync.
 function setupSoundControls() {
     const controls = document.querySelectorAll(".s2-sound-control");
+    const ambientAudio = document.getElementById("ambient-audio");
     if (!controls.length) return;
+
+    if (ambientAudio) {
+        ambientAudio.volume = 0.25;
+    }
 
     const setSoundState = (isActive) => {
         controls.forEach((control) => {
@@ -464,11 +468,25 @@ function setupSoundControls() {
                 label.textContent = isActive ? "AMBIENT SOUND ON" : "AMBIENT SOUND OFF";
             }
         });
+
+        if (ambientAudio) {
+            if (isActive) {
+                const playPromise = ambientAudio.play();
+                if (playPromise !== undefined) {
+                    playPromise.catch(() => {
+                        // Autoplay might be blocked; state remains as user requested
+                    });
+                }
+            } else {
+                ambientAudio.pause();
+            }
+        }
     };
 
     controls.forEach((control) => {
         control.addEventListener("click", () => {
-            setSoundState(!control.classList.contains("s2-sound-active"));
+            const currentlyActive = control.classList.contains("s2-sound-active");
+            setSoundState(!currentlyActive);
         });
     });
 }

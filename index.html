@@ -13,27 +13,18 @@
     <div class="opening">
     <section class="hero">
         <div class="hero-bg"></div>
-        <nav class="navbar">
-            <div class="hamburger">
-                <span class="bar"></span>
-                <span class="bar"></span>
-                <span class="bar"></span>
-            </div>
-            <ul class="nav-links">
-                <li><a href="#">Explore</a></li>
-                <li><a href="#">Map</a></li>
-                <li><a href="#">Stories</a></li>
-                <li><a href="#">About</a></li>
-                <li>
-                    <a href="#" class="sign-in-btn">
-                        <svg viewBox="0 0 24 24">
-                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/>
-                        </svg>
-                        Sign in
-                    </a>
-                </li>
-            </ul>
-        </nav>
+        <header class="s2-header hero-header">
+            <a href="#" class="s2-logo">VIBING ROADS</a>
+            <nav class="s2-nav">
+                <a href="#">EXPLORE</a>
+                <a href="#">MAP</a>
+                <a href="#">STORIES</a>
+                <a href="#">ABOUT</a>
+                <a href="#" class="s2-signin">
+                    ♙ SIGN IN
+                </a>
+            </nav>
+        </header>
 
         <div class="hero-title">
             <h1>
@@ -54,15 +45,17 @@
         <div class="scroll-one-bg"></div>
         <div class="scroll-one-overlay"></div>
 
-        <header class="scroll-header">
-            <div class="scroll-brand-left">
-                <h2>VIBING ROADS</h2>
-                <span>SCROLL 1</span>
-            </div>
-            <div class="scroll-brand-right">
-                <span class="brand-compass">✳</span>
-                <span>VIBING ROADS</span>
-            </div>
+        <header class="s2-header scroll-two-header">
+            <a href="#" class="s2-logo">VIBING ROADS</a>
+            <nav class="s2-nav">
+                <a href="#next-section" class="s2-nav-active">EXPLORE</a>
+                <a href="#next-section">MAP</a>
+                <a href="#next-section">STORIES</a>
+                <a href="#next-section">ABOUT</a>
+                <a href="#next-section" class="s2-signin">
+                    ♙ SIGN IN
+                </a>
+            </nav>
         </header>
 
         <div class="scroll-layout">
@@ -267,7 +260,6 @@
 
     </div>
 
-    <!-- Bottom Left: Local Time -->
     <div class="s2-location-pill">
 
         <span class="s2-clock-icon">◷</span>
@@ -279,7 +271,6 @@
 
     </div>
 
-    <!-- Bottom Right: Sound Control -->
     <button
         type="button"
         class="s2-sound-control"
@@ -298,6 +289,11 @@
 
 </section>
     </div>
+
+    <audio id="ambient-audio" loop preload="auto">
+        <source src="https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3?filename=lofi-chill-medium-version-159456.mp3" type="audio/mpeg">
+    </audio>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollToPlugin.min.js"></script>
