@@ -23,30 +23,34 @@
                 <li><a href="#">Stories</a></li>
                 <li><a href="#">About</a></li>
                 <li>
-                <a href="#" class="sign-in-btn">
-                <svg viewBox="0 0 24 24">
-                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/>
-                </svg>
-                Sign in
-            </a>
-            </li>
+                    <a href="#" class="sign-in-btn">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/>
+                        </svg>
+                        Sign in
+                    </a>
+                </li>
             </ul>
         </nav>
+
         <div class="hero-title">
             <h1>
-               <span>VIBING</span>
-               <span>ROADS</span>
+                <span>VIBING</span>
+                <span>ROADS</span>
             </h1>
             <div class="hero-right">
                 <p class="tagline">Step into real vibing world through your screen</p>
-                <a href="#" class="explore-link">
-                    Explore the world &rarr;
+                <a href="#scroll-one" class="explore-link" id="explore-btn">
+                    Explore the world →
                 </a>
             </div>
         </div>
     </section>
+
+    <!-- ========== FIRST SCROLL SECTION ========== -->
     <section class="scroll-one" id="scroll-one">
-        <div class="scroll-onr-overlay"></div>
+        <div class="scroll-one-overlay"></div>
+
         <header class="scroll-header">
             <div class="scroll-brand-left">
                 <h2>VIBING ROADS</h2>
@@ -57,8 +61,9 @@
                 <span>VIBING ROADS</span>
             </div>
         </header>
+
         <div class="scroll-layout">
-            <nav class="story-nav" aira-label="Journey Stages">
+            <nav class="story-nav" aria-label="Journey Stages">
                 <a href="#notice" class="story-step active" data-step="notice">
                     <span class="step-dot"></span>
                     <span class="step-number">01</span>
@@ -71,78 +76,71 @@
                     <span class="step-label">EXPLORE</span>
                     <span class="step-line"></span>
                 </a>
-                <a href="#feel" class="stroy-step" data-step="feel">
+                <a href="#feel" class="story-step" data-step="feel">
                     <span class="step-dot"></span>
                     <span class="step-number">03</span>
                     <span class="step-label">FEEL</span>
                     <span class="step-line"></span>
                 </a>
             </nav>
+
             <main class="story-copy" id="notice">
                 <p class="story-eyebrow">A JOURNEY THROUGH THE DETAILS</p>
-                <h1>These roads are real.</H1>
-                    <p class="stroy-subtitle">
-                        Every turn holds a story
-                    </p>
-                    <p class="stroy-description">
-                        Follow the little things that catch your eye.
-                    </p>
+                <h1>These roads are real.</h1>
+                <p class="story-subtitle">Every turn holds a story</p>
+                <p class="story-description">Follow the little things that catch your eye.</p>
             </main>
 
             <aside class="detail-card">
                 <div class="card-heading">
-                    <span class="latern-icon">♧</span>
-                    <span>A DETAIL WORTH FIDNIGN</span>
+                    <span class="lantern-icon">♧</span>
+                    <span>A DETAIL WORTH FINDING</span>
                 </div>
                 <div class="detail-image"></div>
-                <p class="'detail-text">
-                    Some sign aren't meant to be seen by everyone.
-                </p>
-                <p class="detail-text">
-                    This one waits for the curious.
-                </p>
+                <p class="detail-text">Some signs aren't meant to be seen by everyone.</p>
+                <p class="detail-text">This one waits for the curious.</p>
                 <button class="reveal-button" id="reveal-detail">
-                    <span class="reveal-arrow">-></span>
+                    <span class="reveal-arrow">→</span>
                 </button>
-                <div class="reveal-massage" id="reveal-massage" aria-live="polite">
+                <div class="reveal-message" id="reveal-message" aria-live="polite">
                     Look closer. Every street has a secret waiting to be discovered.
                 </div>
             </aside>
         </div>
+
         <footer class="scroll-footer">
             <div class="location-pill">
                 <div class="footer-info">
-                    <span class="fotter-icon">◷</span>
+                    <span class="footer-icon">📍</span>
+                    <span>Lisbon, Portugal</span>
                 </div>
-                <span id="local-clock">19:42</span>
-                <small>Local Time</small>
+                <span class="footer-divider"></span>
+                <div class="footer-info">
+                    <span class="footer-icon">◷</span>
+                    <span id="local-clock">21:42</span>
+                    <small>Local Time</small>
+                </div>
             </div>
+
+            <a href="#next-section" class="scroll-cue">
+                <span>SCROLL TO EXPLORE</span>
+                <span class="scroll-chevron">⌄</span>
+            </a>
+
+            <div class="sound-pill">
+                <button class="sound-toggle" id="sound-toggle" type="button" aria-pressed="false">
+                    <span class="sound-icon">♬</span>
+                    <span>Ambient Sound</span>
+                    <span id="sound-status">Off</span>
+                </button>
             </div>
-            <span class="footer-divider"></span>
-            <div class="folder-info">
-                <span class="folder-icon">♧</span>
-            </div>
-            <span>Lisbon, Portugal</span>
-        </div>
-        </div>
-        </div>
-        <a href="#next-section" class="scroll-cute">
-            <span>SCROLL</span>
-            <span class="scroll-chevro">⌄</span>
-        </a>
-        <div class="sound-pill">
-            <button class="sound-toggle" id="sound-toggle" type="button" aria-pressed="false">
-                <span class="sound-icon">♬</span>
-                <span>Ambient Sound</span>
-                <span class="sound-wave">〰〰〰</span>
-                <span id="sound-status">Off</span>
-            </button>
-        </div>
         </footer>
-        <section id="next-section" class="next-sectionn">
-            <p>THE JOURNEY COUNTINUES</p>
-        </section>
     </section>
+    <section id="next-section" class="next-section">
+        <p>THE JOURNEY CONTINUES</p>
+    </section>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
     <script src="script.js"></script>
 </body>
 </html>
