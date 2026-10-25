@@ -383,10 +383,6 @@ if (exploreBtn) {
     });
 });
 
-// ==========================================
-// VIBING ROADS — SECOND SCROLL SECTION
-// ==========================================
-
 const s2ModeCards = document.querySelectorAll(".s2-mode-card");
 const s2StartButtons = document.querySelectorAll(".s2-start-button");
 
@@ -419,15 +415,126 @@ s2ModeCards.forEach((card) => {
 s2StartButtons.forEach((s2StartButton) => {
     s2StartButton.addEventListener("click", () => {
         console.log("VIBING ROADS selected mode:", s2SelectedMode);
+
+        const cities = document.querySelector("#cities");
+        if (!cities) return;
+
+        const targetY = cities.getBoundingClientRect().top + window.scrollY;
+
+        if (hasGsap && typeof ScrollToPlugin !== "undefined" && !reducedMotionQuery.matches) {
+            gsap.to(window, {
+                duration: 1.4,
+                scrollTo: { y: targetY, offsetY: 0 },
+                ease: "power2.inOut"
+            });
+        } else {
+            window.scrollTo({ top: targetY, behavior: "auto" });
+        }
     });
 });
+
+// ==========================================
+// VIBING ROADS — FOURTH SCROLL SECTION
+// ==========================================
+
+const s3CityCards = document.querySelectorAll(".s3-city-card");
+
+s3CityCards.forEach((card) => {
+    card.addEventListener("click", () => {
+        s3CityCards.forEach((item) => {
+            item.classList.remove("s3-city-selected");
+            item.setAttribute("aria-pressed", "false");
+        });
+
+        card.classList.add("s3-city-selected");
+        card.setAttribute("aria-pressed", "true");
+
+        console.log("VIBING ROADS city:", card.dataset.city);
+    });
+});
+
+if (hasGsap && hasScrollTrigger && !reducedMotionQuery.matches) {
+
+    // The city page arrives after the pinned opening, so its pieces lift in
+    // as the section clears the viewport edge.
+    gsap.from(".s3-intro h2, .s3-intro p", {
+        y: 30,
+        autoAlpha: 0,
+        duration: 1,
+        stagger: 0.12,
+        ease: "power3.out",
+        scrollTrigger: {
+            trigger: ".scroll-three",
+            start: "top 74%",
+            once: true
+        }
+    });
+
+    gsap.from(".s3-city-card", {
+        y: 40,
+        autoAlpha: 0,
+        duration: 0.9,
+        stagger: 0.08,
+        ease: "power3.out",
+        scrollTrigger: {
+            trigger: ".s3-city-grid",
+            start: "top 88%",
+            once: true
+        }
+    });
+
+    // Same slow camera push-in used by the street backgrounds, applied to
+    // each city image as the grid arrives. clearProps hands the transform
+    // back to CSS once the entrance finishes, so hover zoom still works.
+    gsap.from(".s3-city-image", {
+        scale: 1.14,
+        duration: 1.4,
+        stagger: 0.08,
+        ease: "power3.out",
+        clearProps: "transform",
+        scrollTrigger: {
+            trigger: ".s3-city-grid",
+            start: "top 88%",
+            once: true
+        }
+    });
+
+    gsap.from(".s3-header, .s3-footer", {
+        autoAlpha: 0,
+        y: 18,
+        duration: 0.8,
+        stagger: 0.1,
+        ease: "power2.out",
+        scrollTrigger: {
+            trigger: ".scroll-three",
+            start: "top 70%",
+            once: true
+        }
+    });
+
+    // Slow drift on the background keeps the same camera language as the
+    // earlier street scenes without pinning a fourth viewport.
+    gsap.fromTo(".scroll-three-bg", {
+        yPercent: -3
+    }, {
+        yPercent: 3,
+        ease: "none",
+        scrollTrigger: {
+            trigger: ".scroll-three",
+            start: "top bottom",
+            end: "bottom top",
+            scrub: true
+        }
+    });
+
+}
 
 // ==========================================
 // Local clock based on user timezone
 // ==========================================
 
 function updateLocalClock() {
-    const clocks = document.querySelectorAll("#s2-local-clock, #local-clock");
+    const clocks = document.querySelectorAll("#s2-local-clock, #s3-local-clock, #local-clock");
     if (!clocks.length) return;
 
     const time = new Intl.DateTimeFormat("en-GB", {

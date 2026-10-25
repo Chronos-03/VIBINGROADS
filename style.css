@@ -1582,6 +1582,551 @@ body {
 }
 
 /* ==========================================
+   FOURTH PAGE — CHOOSE YOUR CITY
+   Layout follows the city-selection reference,
+   palette and typography follow the first three
+   pages: warm dark overlays, gold accents and
+   cream serif headings.
+========================================== */
+
+.scroll-three {
+    --s3-gold: #dfbd82;
+    --s3-cream: #f5f0e8;
+    --s2-gold: #dfbd82;
+
+    position: relative;
+    isolation: isolate;
+
+    width: 100%;
+    min-height: 100vh;
+    min-height: 100svh;
+
+    padding: 0 4.2%;
+
+    display: flex;
+    flex-direction: column;
+
+    overflow: hidden;
+
+    color: var(--s3-cream);
+    background-color: #0d0b09;
+}
+
+.scroll-three-bg {
+    position: absolute;
+    inset: 0;
+    z-index: -2;
+    pointer-events: none;
+
+    background-image: url("4th.png");
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+
+    transform: scale(1.06);
+    transform-origin: center;
+}
+
+.scroll-three-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+
+    background:
+        radial-gradient(
+            ellipse at 26% 42%,
+            transparent 12%,
+            rgba(7, 5, 4, 0.42) 100%
+        ),
+        linear-gradient(
+            180deg,
+            rgba(7, 5, 4, 0.74) 0%,
+            rgba(7, 5, 4, 0.34) 28%,
+            rgba(7, 5, 4, 0.48) 66%,
+            rgba(7, 5, 4, 0.90) 100%
+        );
+}
+
+/* Content */
+
+.s3-content {
+    position: relative;
+    z-index: 1;
+
+    flex: 1;
+
+    width: 100%;
+    max-width: 1500px;
+
+    margin: 0 auto;
+    padding: clamp(96px, 14.5vh, 150px) 0 32px;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+}
+
+.s3-intro {
+    max-width: 760px;
+
+    margin-bottom: clamp(28px, 5.2vh, 58px);
+}
+
+.s3-intro h2 {
+    margin: 0;
+
+    color: #fff;
+
+    font-family: "Playfair Display", serif;
+    font-size: clamp(2.9rem, 5.4vw, 5.2rem);
+    font-weight: 400;
+    line-height: 1.04;
+    letter-spacing: -1.6px;
+
+    text-shadow: 0 4px 30px rgba(0, 0, 0, 0.55);
+}
+
+.s3-intro p {
+    margin: 18px 0 0;
+
+    color: #e6d6c0;
+
+    font-family: "Playfair Display", serif;
+    font-size: clamp(1.05rem, 1.5vw, 1.35rem);
+    line-height: 1.55;
+
+    text-shadow: 0 2px 18px rgba(0, 0, 0, 0.55);
+}
+
+/* City cards */
+
+.s3-city-grid {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: clamp(10px, 1.55vw, 22px);
+
+    width: 100%;
+}
+
+.s3-city-card {
+    min-width: 0;
+
+    margin: 0;
+    padding: 8px 8px 0;
+
+    display: flex;
+    flex-direction: column;
+
+    overflow: hidden;
+
+    border: 1px solid rgba(255, 255, 255, 0.17);
+    border-radius: 17px;
+
+    background: rgba(15, 12, 10, 0.58);
+
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+
+    color: var(--s3-cream);
+    text-align: left;
+
+    font-family: "Inter", sans-serif;
+
+    cursor: pointer;
+
+    box-shadow: 0 16px 45px rgba(0, 0, 0, 0.28);
+
+    transition:
+        border-color 0.35s ease,
+        transform 0.35s ease,
+        box-shadow 0.35s ease,
+        background 0.35s ease;
+}
+
+.s3-city-card:hover,
+.s3-city-card:focus-visible {
+    transform: translateY(-6px);
+
+    border-color: var(--s3-gold);
+
+    background: rgba(21, 17, 13, 0.72);
+
+    box-shadow: 0 22px 55px rgba(0, 0, 0, 0.42);
+}
+
+.s3-city-card:focus-visible {
+    outline: 1px solid var(--s3-gold);
+    outline-offset: 4px;
+}
+
+.s3-city-card.s3-city-selected {
+    border-color: var(--s3-gold);
+
+    box-shadow:
+        0 0 0 1px rgba(223, 189, 130, 0.22),
+        0 22px 55px rgba(0, 0, 0, 0.42);
+}
+
+.s3-city-image {
+    display: block;
+
+    width: 100%;
+    height: clamp(200px, 33vh, 330px);
+
+    border-radius: 11px;
+
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+
+    transform-origin: center;
+
+    transition:
+        transform 0.9s cubic-bezier(0.22, 1, 0.36, 1),
+        filter 0.5s ease;
+}
+
+.s3-city-card:hover .s3-city-image,
+.s3-city-card:focus-visible .s3-city-image,
+.s3-city-card:active .s3-city-image,
+.s3-city-card.s3-city-selected .s3-city-image {
+    transform: scale(1.09);
+
+    filter: brightness(1.03) saturate(1.06);
+}
+
+.s3-image-tokyo {
+    background-image:
+        linear-gradient(rgba(8, 6, 5, 0.08), rgba(8, 6, 5, 0.28)),
+        url("1st.png");
+}
+
+.s3-image-paris {
+    background-image:
+        linear-gradient(rgba(8, 6, 5, 0.08), rgba(8, 6, 5, 0.28)),
+        url("2nd.png");
+}
+
+.s3-image-newyork {
+    background-image:
+        linear-gradient(rgba(8, 6, 5, 0.08), rgba(8, 6, 5, 0.28)),
+        url("3rd.png");
+}
+
+.s3-image-istanbul {
+    background-image:
+        linear-gradient(rgba(8, 6, 5, 0.08), rgba(8, 6, 5, 0.28)),
+        url("driving.png");
+}
+
+.s3-image-mumbai {
+    background-image:
+        linear-gradient(rgba(8, 6, 5, 0.08), rgba(8, 6, 5, 0.28)),
+        url("walking.png");
+}
+
+.s3-city-copy {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: clamp(18px, 3.6vh, 34px);
+
+    padding: 16px 7px 20px;
+}
+
+.s3-city-name {
+    color: #fff;
+
+    font-family: "Playfair Display", serif;
+    font-size: clamp(1.05rem, 1.45vw, 1.4rem);
+    font-weight: 400;
+    line-height: 1.2;
+    letter-spacing: 0.2px;
+
+    white-space: nowrap;
+}
+
+.s3-city-enter {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+
+    color: var(--s3-gold);
+
+    font-size: 8px;
+    font-weight: 500;
+    letter-spacing: 1.8px;
+
+    white-space: nowrap;
+}
+
+.s3-enter-arrow {
+    font-size: 11px;
+    line-height: 1;
+
+    transition: transform 0.3s ease;
+}
+
+.s3-city-card:hover .s3-enter-arrow,
+.s3-city-card:focus-visible .s3-enter-arrow {
+    transform: translateX(3px);
+}
+
+/* Footer */
+
+.s3-footer {
+    position: relative;
+    z-index: 2;
+
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    gap: 18px;
+
+    padding: 0 0 25px;
+}
+
+.s3-location-pill {
+    justify-self: start;
+
+    display: flex;
+    align-items: center;
+    gap: 11px;
+
+    padding: 11px 16px;
+
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 40px;
+
+    background: rgba(10, 8, 7, 0.72);
+
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+}
+
+.s3-location-pill .s2-clock-icon {
+    font-size: 21px;
+}
+
+.s3-tagline {
+    justify-self: center;
+
+    color: rgba(245, 240, 232, 0.68);
+
+    font-size: 9px;
+    letter-spacing: 3.6px;
+    line-height: 1.5;
+
+    text-align: center;
+    white-space: nowrap;
+}
+
+.s3-footer-right {
+    justify-self: end;
+
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.s3-global {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+
+    color: rgba(245, 240, 232, 0.78);
+
+    font-size: 9px;
+    letter-spacing: 2.4px;
+}
+
+.s3-globe {
+    color: var(--s3-gold);
+    font-size: 15px;
+    line-height: 1;
+}
+
+/* Reuse the shared sound control, but let the footer place it. */
+.s3-footer .s3-sound-control {
+    position: relative;
+    right: auto;
+    bottom: auto;
+}
+
+/* ==========================================
+   RESPONSIVE: FOURTH PAGE
+========================================== */
+
+@media (max-width: 1100px) {
+
+    .scroll-three {
+        padding: 0 3%;
+    }
+
+    .s3-city-image {
+        height: clamp(190px, 30vh, 280px);
+    }
+
+    .s3-city-copy {
+        padding: 13px 5px 14px;
+    }
+
+    .s3-city-enter {
+        letter-spacing: 1.2px;
+    }
+
+    .s3-tagline {
+        letter-spacing: 2.4px;
+    }
+
+}
+
+@media (max-width: 900px) {
+
+    .s3-city-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .s3-city-image {
+        height: clamp(190px, 26vh, 260px);
+    }
+
+}
+
+@media (max-width: 760px) {
+
+    .scroll-three {
+        padding: 0;
+        min-height: 100svh;
+    }
+
+    .s3-header {
+        padding: 22px 18px;
+    }
+
+    .s3-content {
+        padding: 104px 18px 30px;
+        justify-content: flex-start;
+    }
+
+    .s3-intro {
+        margin-bottom: 26px;
+    }
+
+    .s3-intro h2 {
+        font-size: clamp(2.6rem, 10.5vw, 3.5rem);
+        letter-spacing: -1px;
+    }
+
+    .s3-intro p {
+        margin-top: 12px;
+        font-size: 1rem;
+    }
+
+    /* Swipeable row keeps all five cities on one line */
+    .s3-city-grid {
+        display: flex;
+        gap: 12px;
+
+        margin: 0 -18px;
+        padding: 4px 18px 12px;
+
+        overflow-x: auto;
+
+        scroll-snap-type: x mandatory;
+        scrollbar-width: none;
+    }
+
+    .s3-city-grid::-webkit-scrollbar {
+        display: none;
+    }
+
+    .s3-city-card {
+        flex: 0 0 56%;
+        max-width: 230px;
+
+        scroll-snap-align: start;
+    }
+
+    .s3-city-image {
+        height: clamp(200px, 30vh, 270px);
+    }
+
+    .s3-city-copy {
+        padding: 13px 6px 14px;
+    }
+
+    .s3-city-name {
+        font-size: 1.1rem;
+    }
+
+    .s3-footer {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 12px;
+
+        padding: 18px 18px 14px;
+    }
+
+    .s3-tagline {
+        order: -1;
+        flex: 0 0 100%;
+
+        display: block;
+
+        margin-bottom: 2px;
+
+        font-size: 8px;
+        letter-spacing: 2.2px;
+    }
+
+    .s3-location-pill {
+        padding: 9px 12px;
+        gap: 8px;
+    }
+
+    .s3-location-pill .s2-clock-icon {
+        font-size: 18px;
+    }
+
+    .s3-global {
+        display: none;
+    }
+
+    .s3-footer-right {
+        margin-left: auto;
+    }
+
+    .s3-footer .s3-sound-control {
+        gap: 7px;
+        padding: 9px 11px;
+    }
+
+}
+
+@media (max-width: 380px) {
+
+    .s3-content {
+        padding-right: 14px;
+        padding-left: 14px;
+    }
+
+    .s3-city-grid {
+        margin: 0 -14px;
+        padding-right: 14px;
+        padding-left: 14px;
+    }
+
+    .s3-footer {
+        padding-right: 14px;
+        padding-left: 14px;
+    }
+
+}
+
+/* ==========================================
    REDUCED MOTION
    Simpler transitions for users who prefer
    reduced animation
