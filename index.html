@@ -10,7 +10,9 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <div class="opening">
     <section class="hero">
+        <div class="hero-bg"></div>
         <nav class="navbar">
             <div class="hamburger">
                 <span class="bar"></span>
@@ -49,6 +51,7 @@
 
     <!-- ========== FIRST SCROLL SECTION ========== -->
     <section class="scroll-one" id="scroll-one">
+        <div class="scroll-one-bg"></div>
         <div class="scroll-one-overlay"></div>
 
         <header class="scroll-header">
@@ -66,21 +69,17 @@
             <nav class="story-nav" aria-label="Journey Stages">
                 <a href="#notice" class="story-step active" data-step="notice">
                     <span class="step-dot"></span>
-                    <span class="step-number">01</span>
-                    <span class="step-label">NOTICE</span>
-                    <span class="step-line"></span>
+                    <span class="step-copy">
+                        <span class="step-number">01</span>
+                        <span class="step-label">NOTICE</span>
+                    </span>
                 </a>
-                <a href="#explore" class="story-step" data-step="explore">
+                <a href="#next-section" class="story-step" data-step="explore">
                     <span class="step-dot"></span>
-                    <span class="step-number">02</span>
-                    <span class="step-label">EXPLORE</span>
-                    <span class="step-line"></span>
-                </a>
-                <a href="#feel" class="story-step" data-step="feel">
-                    <span class="step-dot"></span>
-                    <span class="step-number">03</span>
-                    <span class="step-label">FEEL</span>
-                    <span class="step-line"></span>
+                    <span class="step-copy">
+                        <span class="step-number">02</span>
+                        <span class="step-label">EXPLORE</span>
+                    </span>
                 </a>
             </nav>
 
@@ -111,11 +110,6 @@
         <footer class="scroll-footer">
             <div class="location-pill">
                 <div class="footer-info">
-                    <span class="footer-icon">📍</span>
-                    <span>Lisbon, Portugal</span>
-                </div>
-                <span class="footer-divider"></span>
-                <div class="footer-info">
                     <span class="footer-icon">◷</span>
                     <span id="local-clock">21:42</span>
                     <small>Local Time</small>
@@ -128,19 +122,185 @@
             </a>
 
             <div class="sound-pill">
-                <button class="sound-toggle" id="sound-toggle" type="button" aria-pressed="false">
-                    <span class="sound-icon">♬</span>
-                    <span>Ambient Sound</span>
-                    <span id="sound-status">Off</span>
+                <button
+                    type="button"
+                    class="s2-sound-control"
+                    id="sound-toggle"
+                    aria-pressed="false"
+                >
+                    <span class="s2-sound-icon">♫</span>
+                    <span class="s2-sound-label" id="sound-label">AMBIENT SOUND OFF</span>
+
+                    <span class="s2-switch">
+                        <span class="s2-switch-knob"></span>
+                    </span>
                 </button>
             </div>
         </footer>
     </section>
-    <section id="next-section" class="next-section">
-        <p>THE JOURNEY CONTINUES</p>
-    </section>
+    <!-- ========== THIRD PAGE: NEXT STREET ========== -->
+
+<section class="scroll-two" id="next-section">
+
+    <div class="scroll-two-bg"></div>
+    <div class="scroll-two-overlay"></div>
+
+    <!-- Navigation -->
+    <header class="s2-header">
+
+        <a href="#" class="s2-logo">VIBING ROADS</a>
+
+        <nav class="s2-nav">
+            <a href="#next-section" class="s2-nav-active">EXPLORE</a>
+            <a href="#next-section">MAP</a>
+            <a href="#next-section">STORIES</a>
+            <a href="#next-section">ABOUT</a>
+            <a href="#next-section" class="s2-signin">
+                ♙ SIGN IN
+            </a>
+        </nav>
+
+    </header>
+
+    <!-- Journey Progress -->
+    <aside class="s2-journey">
+
+        <div class="s2-journey-step" data-journey-step="notice">
+            <span class="s2-step-dot"></span>
+            <div>
+                <span class="s2-step-number">01</span>
+                <p>NOTICE</p>
+            </div>
+        </div>
+
+        <div class="s2-journey-step s2-current-step" data-journey-step="explore">
+            <span class="s2-step-dot"></span>
+            <div>
+                <span class="s2-step-number">02</span>
+                <p>EXPLORE</p>
+            </div>
+        </div>
+
+    </aside>
+
+    <!-- Main Content -->
+    <div class="s2-main">
+
+        <!-- Left Text -->
+        <div class="s2-intro">
+
+            <span class="s2-eyebrow">YOUR CITY. YOUR JOURNEY.</span>
+
+            <h2>
+                Move the way<br>
+                you <em>want.</em>
+            </h2>
+
+            <div class="s2-gold-line"></div>
+
+            <p>
+                Drive through the city or<br>
+                walk its quiet corners.
+            </p>
+
+        </div>
+
+        <!-- Driving and Walking Panel -->
+        <div class="s2-panel">
+
+            <h3 class="s2-panel-title">CHOOSE YOUR MODE</h3>
+
+            <div class="s2-panel-line"></div>
+
+            <div class="s2-mode-grid">
+
+                <!-- Driving -->
+                <button
+                    type="button"
+                    class="s2-mode-card"
+                    data-mode="driving"
+                    aria-pressed="false"
+                >
+
+                    <div class="s2-mode-image s2-driving-image"></div>
+
+                    <div class="s2-mode-info">
+                        <h4>DRIVING</h4>
+
+                        <p>
+                            Flow with the streets.<br>
+                            Discover at your pace.
+                        </p>
+                    </div>
+
+                </button>
+
+                <!-- Walking -->
+                <button
+                    type="button"
+                    class="s2-mode-card s2-mode-selected"
+                    data-mode="walking"
+                    aria-pressed="true"
+                >
+
+                    <div class="s2-mode-image s2-walking-image"></div>
+
+                    <div class="s2-mode-info">
+                        <h4>WALKING</h4>
+
+                        <p>
+                            Savor the details.<br>
+                            Make the city yours.
+                        </p>
+                    </div>
+
+                </button>
+
+            </div>
+
+            <button type="button" class="s2-start-button">
+                <span class="s2-button-label">TRY THE FEELING</span>
+                <span class="s2-button-arrow">→</span>
+            </button>
+
+        </div>
+
+    </div>
+
+    <!-- Bottom Left: Local Time -->
+    <div class="s2-location-pill">
+
+        <span class="s2-clock-icon">◷</span>
+
+        <div class="s2-time-block">
+            <span id="s2-local-clock">21:42</span>
+            <small>LOCAL TIME</small>
+        </div>
+
+    </div>
+
+    <!-- Bottom Right: Sound Control -->
+    <button
+        type="button"
+        class="s2-sound-control"
+        id="s2-sound-toggle"
+        aria-pressed="false"
+    >
+
+        <span class="s2-sound-icon">♫</span>
+        <span class="s2-sound-label" id="s2-sound-label">AMBIENT SOUND OFF</span>
+
+        <span class="s2-switch">
+            <span class="s2-switch-knob"></span>
+        </span>
+
+    </button>
+
+</section>
+    </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollToPlugin.min.js"></script>
     <script src="script.js"></script>
 </body>
 </html>

@@ -6,29 +6,93 @@
 
 body, html {
     width: 100%;
-    height: 100%;
     font-family: 'Inter', sans-serif;
     background-color: #0b0f19;
     color: #ffffff;
     overflow-x: hidden;
-    overflow-y: auto;
 }
 
 html {
-    scroll-behavior: smooth;
+    min-height: 100%;
+    scroll-behavior: auto;
+}
+
+body {
+    min-height: 100vh;
+}
+
+/* ==========================================
+   OPENING SHOT
+   The hero and both street scenes are one
+   pinned composition on larger screens, so the
+   camera pushes forward through the landing page
+   into the first street, then into the next one,
+   with no separate travel between scenes.
+========================================== */
+
+.opening {
+    position: relative;
+    width: 100%;
+}
+
+@media (min-width: 761px) and (prefers-reduced-motion: no-preference) {
+
+    .cinematic .opening {
+        height: 100vh;
+        height: 100svh;
+        overflow: hidden;
+        background-color: #0b0f19;
+    }
+
+    .cinematic .opening > .hero,
+    .cinematic .opening > .scroll-one,
+    .cinematic .opening > .scroll-two {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        min-height: 0;
+    }
+
+    .cinematic .opening > .hero {
+        z-index: 3;
+    }
+
+    .cinematic .opening > .scroll-one {
+        z-index: 2;
+    }
+
+    .cinematic .opening > .scroll-two {
+        z-index: 1;
+    }
+
 }
 
 /* ========== HERO SECTION ========== */
 .hero {
     position: relative;
+    isolation: isolate;
     width: 100vw;
     height: 100vh;
-    background: linear-gradient(rgba(10, 15, 25, 0.4), rgba(5, 8, 15, 0.6)), url("1st.png") no-repeat center center/cover;
+    overflow: hidden;
+    background-color: #0b0f19;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
     align-items: center;
     padding: 2rem 4rem;
+}
+
+/* Hero background lives on its own layer so the camera push-in can zoom
+   the image without scaling the navigation or headline. */
+.hero-bg {
+    position: absolute;
+    inset: 0;
+    z-index: -2;
+    pointer-events: none;
+    background:
+        linear-gradient(rgba(10, 15, 25, 0.4), rgba(5, 8, 15, 0.6)),
+        url("1st.png") no-repeat center center / cover;
 }
 
 .navbar {
@@ -195,13 +259,6 @@ html {
     justify-content: space-between;
     color: #f5eee3;
     background-color: #17120f;
-    background-image: 
-        linear-gradient(90deg, rgba(10, 8, 7, 0.72) 0%, rgba(15, 11, 8, 0.13) 48%, rgba(8, 7, 6, 0.60) 100%),
-        linear-gradient(0deg, rgba(8, 6, 5, 0.68), transparent 36%, rgba(8, 6, 5, 0.18)),
-        url("2nd.png");
-    background-position: center;
-    background-size: cover;
-    background-repeat: no-repeat;
 }
 
 .scroll-one-overlay {
@@ -210,6 +267,34 @@ html {
     z-index: -1;
     pointer-events: none;
     background: radial-gradient(ellipse at center, transparent 20%, rgba(0, 0, 0, 0.22) 100%);
+}
+
+/* Scroll background layers — each scene owns its own background */
+.scroll-one-bg,
+.scroll-two-bg {
+    position: absolute;
+    inset: 0;
+    z-index: -2;
+    pointer-events: none;
+}
+
+.scroll-one-bg {
+    opacity: 1;
+    background-image:
+        linear-gradient(90deg, rgba(10, 8, 7, 0.72) 0%, rgba(15, 11, 8, 0.13) 48%, rgba(8, 7, 6, 0.60) 100%),
+        linear-gradient(0deg, rgba(8, 6, 5, 0.68), transparent 36%, rgba(8, 6, 5, 0.18)),
+        url("2nd.png");
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+}
+
+.scroll-two-bg {
+    opacity: 1;
+    background-image: url("3rd.png");
+    background-position: center 55%;
+    background-size: cover;
+    background-repeat: no-repeat;
 }
 
 .scroll-header {
@@ -259,90 +344,90 @@ html {
     margin: 28px auto;
 }
 
+/* Matches the journey indicator on the third page */
 .story-nav {
+    position: relative;
     display: flex;
     flex-direction: column;
     justify-content: center;
-    align-self: stretch;
+    align-self: center;
+    gap: 53px;
+}
+
+.story-nav::before {
+    content: "";
+    position: absolute;
+    top: 12px;
+    bottom: 12px;
+    left: 10px;
+    width: 1px;
+    background: rgba(255, 255, 255, 0.30);
 }
 
 .story-step {
     position: relative;
-    display: grid;
-    grid-template-columns: 50px 1fr;
-    grid-template-rows: auto auto auto;
-    align-content: center;
-    min-height: 140px;
-    color: rgba(241, 226, 202, 0.65);
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    color: rgba(255, 255, 255, 0.60);
     text-decoration: none;
     transition: color 0.3s ease;
 }
 
-.story-step:hover,
+.story-step:hover {
+    color: rgba(255, 255, 255, 0.85);
+}
+
 .story-step.active {
-    color: #fff6e8;
+    color: #75eae3;
 }
 
 .step-dot {
-    position: absolute;
-    top: 50%;
-    left: 0;
-    transform: translate(-50%, -50%);
-    width: 20px;
-    height: 20px;
+    position: relative;
+    width: 22px;
+    height: 22px;
+    flex-shrink: 0;
+    border: 1px solid rgba(255, 255, 255, 0.65);
     border-radius: 50%;
-    background: #817257;
-    border: 4px solid rgba(232, 205, 157, 0.25);
-    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.25);
-    transition: all 0.3s ease;
-}
-
-.story-step:not(:last-child)::after {
-    content: "";
-    position: absolute;
-    left: 13px;
-    top: calc(50% + 18px);
-    width: 1px;
-    height: calc(100% - 36px);
-    background: rgba(255, 201, 162, 0.55);
+    background: #171b20;
+    z-index: 1;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 .story-step.active .step-dot {
-    background: #ffdf91;
-    border-color: #d7b66d;
-    box-shadow: 0 0 10px #ffdf91, 0 0 25px rgba(255, 200, 100, 0.65);
+    border-color: #75eae3;
+    box-shadow: 0 0 14px rgba(117, 234, 227, 0.45);
+}
+
+.story-step.active .step-dot::after {
+    content: "";
+    position: absolute;
+    inset: 5px;
+    border-radius: 50%;
+    background: #75eae3;
+}
+
+.step-copy {
+    display: flex;
+    flex-direction: column;
 }
 
 .step-number {
-    grid-column: 2;
-    font-family: "Playfair Display", serif;
-    font-size: clamp(1.6rem, 2.4vw, 2.4rem);
-    line-height: 1;
+    font-size: 13px;
+    line-height: 1.2;
+    letter-spacing: 1px;
 }
 
 .step-label {
-    grid-column: 2;
-    margin-top: 8px;
+    margin-top: 4px;
     font-family: "Inter", sans-serif;
-    font-size: 0.78rem;
-    font-weight: 500;
-    letter-spacing: 3px;
-}
-
-.step-line {
-    grid-column: 2;
-    width: 55px;
-    height: 2px;
-    margin-top: 20px;
-    background: rgba(226, 199, 151, 0.5);
-}
-
-.story-step.active .step-line {
-    background: var(--gold);
+    font-size: 11px;
+    font-weight: 400;
+    letter-spacing: 1.5px;
 }
 
 .story-copy {
-    text-align: center;
+    text-align: left;
     align-self: center;
     padding: 24px 0;
     text-shadow: 0 3px 24px rgba(0, 0, 0, 0.65);
@@ -407,7 +492,7 @@ html {
     aspect-ratio: 1.18 / 1;
     border-radius: 15px;
     border: 1px solid rgba(255, 255, 255, 0.16);
-    background-image: linear-gradient(rgba(0, 0, 0, 0.05), rgba(0, 0, 0, 0.08)), url("lisbon-detail.jpg");
+    background-image: linear-gradient(rgba(0, 0, 0, 0.05), rgba(0, 0, 0, 0.08)), url("2nd.png");
     background-size: cover;
     background-position: center;
 }
@@ -476,8 +561,7 @@ html {
     gap: 15px;
 }
 
-.location-pill,
-.sound-pill {
+.location-pill {
     display: flex;
     align-items: center;
     width: fit-content;
@@ -498,12 +582,6 @@ html {
     display: flex;
     align-items: center;
     gap: 8px;
-}
-
-.footer-divider {
-    width: 1px;
-    height: 38px;
-    background: rgba(255, 255, 255, 0.35);
 }
 
 .scroll-cue {
@@ -536,34 +614,16 @@ html {
 
 .sound-pill {
     justify-self: end;
-}
-
-.sound-toggle {
     display: flex;
     align-items: center;
-    gap: 12px;
-    padding: 0;
-    border: none;
-    background: transparent;
-    color: white;
-    font-family: "Inter", sans-serif;
-    font-size: 0.85rem;
-    cursor: pointer;
-    white-space: nowrap;
 }
 
-.sound-wave {
-    color: #e8d4b3;
-    letter-spacing: 1px;
-}
-
-.sound-toggle[aria-pressed="true"] .sound-wave {
-    animation: wave-pulse 0.7s infinite alternate;
-}
-
-@keyframes wave-pulse {
-    from { opacity: 0.45; }
-    to { opacity: 1; }
+/* The first street reuses the third page's sound control; only the
+   absolute corner placement is replaced by the footer grid. */
+.sound-pill .s2-sound-control {
+    position: relative;
+    right: auto;
+    bottom: auto;
 }
 
 .next-section {
@@ -668,13 +728,8 @@ html {
     .story-copy h1 {
         font-size: clamp(2.4rem, 4.4vw, 3.8rem);
     }
-    .location-pill,
-    .sound-pill {
+    .location-pill {
         padding: 12px 15px;
-    }
-    .sound-toggle {
-        gap: 10px;
-        font-size: 0.75rem;
     }
 }
 
@@ -710,38 +765,13 @@ html {
         gap: 28px;
         margin: 35px auto;
     }
+    /* The third page hides its journey indicator on phones, so match it. */
     .story-nav {
-        flex-direction: row;
-        justify-content: center;
-        gap: 12px;
-    }
-    .story-step {
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        min-height: auto;
-        gap: 7px;
-        padding: 12px 0;
-    }
-    .story-step:not(:last-child)::after,
-    .step-line,
-    .step-dot {
         display: none;
-    }
-    .step-number {
-        font-size: 1.8rem;
-    }
-    .step-label {
-        margin-top: 0;
-        font-size: 0.65rem;
-        letter-spacing: 1.5px;
-    }
-    .story-step.active .step-number {
-        color: var(--gold);
     }
     .story-copy {
         padding: 10px 0;
+        text-align: center;
     }
     .story-copy h1 {
         font-size: clamp(2.4rem, 9vw, 3.5rem);
@@ -783,9 +813,6 @@ html {
     .footer-icon {
         font-size: 1.3rem;
     }
-    .footer-divider {
-        height: 30px;
-    }
     .scroll-cue {
         grid-column: 1;
         grid-row: 2;
@@ -795,18 +822,6 @@ html {
         grid-column: 2;
         grid-row: 2;
         justify-self: end;
-        min-height: 50px;
-        padding: 12px;
-    }
-    .sound-toggle {
-        gap: 7px;
-        font-size: 0.68rem;
-    }
-    .sound-wave {
-        display: none;
-    }
-    .sound-icon {
-        font-size: 1.2rem;
     }
 }
 
@@ -823,37 +838,818 @@ html {
     .footer-info {
         font-size: 0.68rem;
     }
-    .sound-toggle {
-        font-size: 0.62rem;
-    }
 }
-.hero {
+/* ==========================================
+   VIBING ROADS — SECOND SCROLLING SECTION
+   All styles are isolated with s2- classes
+========================================== */
+
+.scroll-two {
+    --s2-gold: #dfbd82;
+    --s2-white: #f5f0e8;
+
     position: relative;
+    isolation: isolate;
+
+    width: 100%;
+    height: 100vh;
+    height: 100svh;
+    min-height: 650px;
+
+    overflow: hidden;
+
+    display: flex;
+    align-items: center;
+
+    color: var(--s2-white);
+
+    font-family: "Inter", sans-serif;
+
+    background-color: #10151b;
+}
+
+/* Dark cinematic overlay */
+
+.scroll-two-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+
+    background:
+        linear-gradient(
+            90deg,
+            rgba(5, 8, 12, 0.73) 0%,
+            rgba(5, 8, 12, 0.40) 43%,
+            rgba(5, 8, 12, 0.60) 100%
+        ),
+        linear-gradient(
+            0deg,
+            rgba(5, 8, 12, 0.68) 0%,
+            transparent 45%,
+            rgba(5, 8, 12, 0.40) 100%
+        );
+}
+
+/* ==========================================
+   HEADER / NAVIGATION
+========================================== */
+
+.s2-header {
+    position: absolute;
+    top: 0;
+    left: 0;
+
+    width: 100%;
+    padding: 28px 5%;
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    z-index: 5;
+}
+
+.s2-logo {
+    color: #fff;
+    text-decoration: none;
+
+    font-family: "Cinzel", serif;
+    font-size: 19px;
+    font-weight: 600;
+    letter-spacing: 4px;
+
+    white-space: nowrap;
+}
+
+.s2-nav {
+    display: flex;
+    align-items: center;
+    gap: 35px;
+}
+
+.s2-nav a {
+    position: relative;
+
+    color: rgba(255, 255, 255, 0.78);
+    text-decoration: none;
+
+    font-size: 11px;
+    letter-spacing: 1.5px;
+
+    transition: color 0.3s ease;
+}
+
+.s2-nav a:hover,
+.s2-nav a.s2-nav-active {
+    color: #fff;
+}
+
+.s2-nav a.s2-nav-active::after {
+    content: "";
+
+    position: absolute;
+    bottom: -12px;
+    left: 0;
+
+    width: 100%;
+    height: 2px;
+
+    background: var(--s2-gold);
+}
+
+.s2-nav a.s2-signin {
+    padding: 12px 19px;
+
+    border: 1px solid rgba(255, 255, 255, 0.45);
+    border-radius: 30px;
+}
+
+.s2-nav a.s2-signin:hover {
+    background: rgba(255, 255, 255, 0.10);
+}
+
+/* ==========================================
+   LEFT JOURNEY INDICATOR
+========================================== */
+
+.s2-journey {
+    position: absolute;
+
+    top: 50%;
+    left: 4.2%;
+
+    transform: translateY(-50%);
+
+    display: flex;
+    flex-direction: column;
+    gap: 53px;
+
     z-index: 2;
 }
 
-.scroll-one {
+.s2-journey::before {
+    content: "";
+
+    position: absolute;
+    top: 12px;
+    bottom: 12px;
+    left: 10px;
+
+    width: 1px;
+
+    background: rgba(255, 255, 255, 0.30);
+}
+
+.s2-journey-step {
     position: relative;
+
+    display: flex;
+    align-items: center;
+    gap: 14px;
+
+    color: rgba(255, 255, 255, 0.60);
+}
+
+.s2-step-dot {
+    position: relative;
+
+    width: 22px;
+    height: 22px;
+
+    flex-shrink: 0;
+
+    border: 1px solid rgba(255, 255, 255, 0.65);
+    border-radius: 50%;
+
+    background: #171b20;
+
     z-index: 1;
 }
 
-.scroll-one .scroll-header,
-.scroll-one .story-nav,
-.scroll-one .story-copy,
-.scroll-one .detail-card,
-.scroll-one .scroll-footer {
-    opacity: 0;
-    transform: translateY(40px);
+.s2-step-number {
+    font-size: 13px;
+    letter-spacing: 1px;
 }
 
-.scroll-one .story-nav {
-    transform: translateX(-60px);
+.s2-journey-step p {
+    margin: 4px 0 0;
+
+    font-size: 11px;
+    letter-spacing: 1.5px;
 }
 
-.scroll-one .detail-card {
-    transform: translateX(60px);
+.s2-journey-step.s2-current-step {
+    color: #75eae3;
 }
 
-.scroll-one .story-copy {
-    transform: scale(0.92);
+.s2-current-step .s2-step-dot {
+    border-color: #75eae3;
+
+    box-shadow: 0 0 14px rgba(117, 234, 227, 0.45);
+}
+
+.s2-current-step .s2-step-dot::after {
+    content: "";
+
+    position: absolute;
+    inset: 5px;
+
+    border-radius: 50%;
+    background: #75eae3;
+}
+
+/* ==========================================
+   MAIN LAYOUT
+========================================== */
+
+.s2-main {
+    position: relative;
+
+    width: 100%;
+    padding: 105px 4% 105px 15%;
+
+    display: grid;
+
+    grid-template-columns: minmax(0, 1fr) 385px;
+
+    align-items: center;
+    gap: 45px;
+
+    z-index: 1;
+}
+
+/* Left heading */
+
+.s2-intro {
+    min-width: 0;
+}
+
+.s2-eyebrow {
+    display: block;
+
+    margin-bottom: 22px;
+
+    color: var(--s2-gold);
+
+    font-size: 10px;
+    letter-spacing: 3px;
+}
+
+.s2-intro h2 {
+    margin: 0;
+
+    color: #fff;
+
+    font-family: "Playfair Display", serif;
+    font-size: clamp(45px, 5.2vw, 76px);
+    font-weight: 400;
+
+    line-height: 1.08;
+    letter-spacing: -1.8px;
+}
+
+.s2-intro h2 em {
+    color: var(--s2-gold);
+    font-weight: 400;
+}
+
+.s2-gold-line {
+    width: 58px;
+    height: 2px;
+
+    margin: 27px 0 20px;
+
+    background: var(--s2-gold);
+}
+
+.s2-intro > p {
+    margin: 0;
+
+    color: rgba(255, 255, 255, 0.91);
+
+    font-family: "Playfair Display", serif;
+    font-size: clamp(18px, 1.8vw, 25px);
+
+    line-height: 1.55;
+}
+
+/* ==========================================
+   MODE SELECTION PANEL
+========================================== */
+
+.s2-panel {
+    width: 100%;
+    min-width: 0;
+
+    padding: 25px;
+
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    border-radius: 23px;
+
+    background: rgba(15, 18, 20, 0.82);
+
+    -webkit-backdrop-filter: blur(16px);
+    backdrop-filter: blur(16px);
+
+    box-shadow: 0 20px 65px rgba(0, 0, 0, 0.35);
+}
+
+.s2-panel-title {
+    margin: 0;
+
+    color: #fff;
+
+    font-size: 12px;
+    font-weight: 400;
+    letter-spacing: 2px;
+}
+
+.s2-panel-line {
+    width: 33px;
+    height: 2px;
+
+    margin: 13px 0 17px;
+
+    background: var(--s2-gold);
+}
+
+/* Cards */
+
+.s2-mode-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+}
+
+.s2-mode-card {
+    min-width: 0;
+    padding: 0;
+
+    overflow: hidden;
+
+    color: #fff;
+    text-align: left;
+
+    background: rgba(0, 0, 0, 0.28);
+
+    border: 1px solid rgba(255, 255, 255, 0.20);
+    border-radius: 15px;
+
+    cursor: pointer;
+
+    transition:
+        border-color 0.3s ease,
+        transform 0.3s ease,
+        box-shadow 0.3s ease;
+}
+
+.s2-mode-card:hover {
+    transform: translateY(-3px);
+    border-color: var(--s2-gold);
+}
+
+.s2-mode-card.s2-mode-selected {
+    border-color: var(--s2-gold);
+
+    box-shadow: 0 0 16px rgba(223, 189, 130, 0.15);
+}
+
+/* Card backgrounds */
+
+.s2-mode-image {
+    width: 100%;
+    height: 145px;
+
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+
+    transition: transform 0.4s ease;
+}
+
+.s2-mode-card:hover .s2-mode-image {
+    transform: scale(1.04);
+}
+
+.s2-driving-image {
+    background-image:
+        linear-gradient(rgba(0, 0, 0, 0.05), rgba(0, 0, 0, 0.12)),
+        url("https://images.unsplash.com/photo-1519608487953-e999c86e7455?auto=format&fit=crop&w=600&q=80");
+}
+
+.s2-walking-image {
+    background-image:
+        linear-gradient(rgba(0, 0, 0, 0.05), rgba(0, 0, 0, 0.12)),
+        url("https://images.unsplash.com/photo-1519608487953-e999c86e7455?auto=format&fit=crop&w=600&q=80");
+}
+
+.s2-mode-info {
+    padding: 13px 11px 15px;
+}
+
+.s2-mode-info h4 {
+    margin: 0 0 8px;
+
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 1.1px;
+}
+
+.s2-mode-info p {
+    margin: 0;
+
+    color: rgba(255, 255, 255, 0.75);
+
+    font-family: "Playfair Display", serif;
+    font-size: 11px;
+    line-height: 1.6;
+}
+
+/* ==========================================
+   GOLD BUTTON
+========================================== */
+
+.s2-start-button {
+    width: 100%;
+    min-height: 52px;
+
+    margin-top: 18px;
+    padding: 14px 18px;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+
+    border: none;
+    border-radius: 35px;
+
+    color: #20170c;
+
+    background: linear-gradient(
+        110deg,
+        #d6a861,
+        #f0d39a,
+        #d6a861
+    );
+
+    font-family: "Inter", sans-serif;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 1.4px;
+
+    cursor: pointer;
+
+    transition:
+        transform 0.3s ease,
+        box-shadow 0.3s ease;
+}
+
+.s2-start-button:hover {
+    transform: translateY(-2px);
+
+    box-shadow: 0 8px 25px rgba(223, 189, 130, 0.25);
+}
+
+.s2-button-arrow {
+    font-size: 19px;
+
+    transition: transform 0.3s ease;
+}
+
+.s2-start-button:hover .s2-button-arrow {
+    transform: translateX(4px);
+}
+
+/* ==========================================
+   BOTTOM LOCATION PILL
+========================================== */
+
+.s2-location-pill {
+    position: absolute;
+
+    left: 2.5%;
+    bottom: 25px;
+
+    display: flex;
+    align-items: center;
+    gap: 13px;
+
+    padding: 12px 17px;
+
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 40px;
+
+    background: rgba(10, 12, 15, 0.75);
+
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+
+    z-index: 2;
+}
+
+.s2-clock-icon {
+    font-size: 23px;
+}
+
+.s2-time-block {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+#s2-local-clock {
+    font-size: 11px;
+    letter-spacing: 1px;
+}
+
+.s2-time-block small {
+    font-size: 8px;
+    letter-spacing: 1px;
+    color: rgba(255, 255, 255, 0.65);
+}
+
+/* ==========================================
+   AMBIENT SOUND CONTROL
+========================================== */
+
+.s2-sound-control {
+    position: absolute;
+
+    right: 2.5%;
+    bottom: 25px;
+
+    display: flex;
+    align-items: center;
+    gap: 11px;
+
+    padding: 12px 15px;
+
+    border: 1px solid rgba(255, 255, 255, 0.20);
+    border-radius: 35px;
+
+    background: rgba(10, 12, 15, 0.76);
+    color: white;
+
+    font-family: "Inter", sans-serif;
+    font-size: 9px;
+    letter-spacing: 1px;
+
+    cursor: pointer;
+    z-index: 2;
+}
+
+.s2-sound-icon {
+    font-size: 18px;
+    color: #dfbd82;
+}
+
+.s2-switch {
+    width: 36px;
+    height: 20px;
+
+    padding: 3px;
+
+    border-radius: 20px;
+    background: #626262;
+
+    transition: background 0.3s ease;
+}
+
+.s2-switch-knob {
+    display: block;
+
+    width: 14px;
+    height: 14px;
+
+    border-radius: 50%;
+    background: white;
+
+    transition: transform 0.3s ease;
+}
+
+.s2-sound-control.s2-sound-active .s2-switch {
+    background: #dcb875;
+}
+
+.s2-sound-control.s2-sound-active .s2-switch-knob {
+    transform: translateX(16px);
+}
+
+/* ==========================================
+   RESPONSIVE: TABLET
+========================================== */
+
+@media (max-width: 1100px) {
+
+    .s2-main {
+        padding-left: 12%;
+        padding-right: 3%;
+        gap: 25px;
+
+        grid-template-columns: minmax(0, 1fr) 340px;
+    }
+
+    .s2-panel {
+        padding: 20px;
+    }
+
+    .s2-mode-image {
+        height: 125px;
+    }
+
+    .s2-nav {
+        gap: 20px;
+    }
+
+    .s2-intro h2 {
+        font-size: clamp(42px, 5vw, 60px);
+    }
+
+}
+
+/* ==========================================
+   RESPONSIVE: MOBILE
+========================================== */
+
+@media (max-width: 760px) {
+
+    .scroll-two {
+        height: auto;
+        min-height: 100svh;
+        overflow: hidden;
+    }
+
+    .s2-header {
+        padding: 22px 18px;
+    }
+
+    .s2-logo {
+        font-size: 15px;
+        letter-spacing: 2px;
+    }
+
+    .s2-nav {
+        gap: 0;
+    }
+
+    .s2-nav a:not(.s2-signin) {
+        display: none;
+    }
+
+    .s2-nav a.s2-signin {
+        padding: 10px 12px;
+        font-size: 9px;
+    }
+
+    .s2-journey {
+        display: none;
+    }
+
+    .s2-main {
+        padding: 115px 20px 145px;
+
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 28px;
+    }
+
+    .s2-eyebrow {
+        margin-bottom: 16px;
+        font-size: 9px;
+    }
+
+    .s2-intro h2 {
+        font-size: clamp(45px, 10vw, 64px);
+        letter-spacing: -1px;
+    }
+
+    .s2-gold-line {
+        margin: 20px 0 14px;
+    }
+
+    .s2-intro > p {
+        font-size: 19px;
+    }
+
+    .s2-panel {
+        width: 100%;
+        max-width: 430px;
+
+        margin: 0 auto;
+        padding: 17px;
+
+        border-radius: 19px;
+    }
+
+    .s2-mode-image {
+        height: 125px;
+    }
+
+    .s2-mode-info {
+        padding: 11px 8px;
+    }
+
+    .s2-mode-info h4 {
+        font-size: 10px;
+    }
+
+    .s2-mode-info p {
+        font-size: 10px;
+    }
+
+    .s2-location-pill {
+        left: 12px;
+        bottom: 14px;
+
+        gap: 8px;
+        padding: 10px;
+    }
+
+    .s2-clock-icon {
+        font-size: 19px;
+    }
+
+    #s2-local-clock {
+        font-size: 9px;
+    }
+
+    .s2-time-block small {
+        font-size: 7px;
+    }
+
+    .s2-sound-control {
+        right: 12px;
+        bottom: 14px;
+
+        gap: 7px;
+        padding: 10px;
+    }
+
+    .s2-sound-label {
+        display: none;
+    }
+
+}
+
+/* Extra-small screens */
+
+@media (max-width: 380px) {
+
+    .s2-main {
+        padding-right: 14px;
+        padding-left: 14px;
+    }
+
+    .s2-panel {
+        padding: 13px;
+    }
+
+    .s2-mode-image {
+        height: 105px;
+    }
+
+    .s2-location-pill {
+        left: 8px;
+        gap: 6px;
+        padding: 8px;
+    }
+
+}
+
+/* ==========================================
+   REDUCED MOTION
+   Simpler transitions for users who prefer
+   reduced animation
+========================================== */
+
+@media (prefers-reduced-motion: reduce) {
+
+    .scroll-one-bg,
+    .scroll-two-bg {
+        opacity: 1;
+        transform: none;
+    }
+
+    .scroll-one .scroll-header,
+    .scroll-one .story-nav,
+    .scroll-one .story-copy,
+    .scroll-one .detail-card,
+    .scroll-one .scroll-footer {
+        opacity: 1 !important;
+        transform: none !important;
+    }
+
+    .scroll-one .detail-card {
+        filter: none !important;
+        transform: none !important;
+    }
+
+    .scroll-one .story-copy,
+    .scroll-one .story-nav {
+        transform: none !important;
+    }
+
 }
