@@ -15,7 +15,6 @@ if (hamburger && navMenu) {
     });
 }
 
-// Subtle pointer parallax on the hero image layer
 document.addEventListener("mousemove", (e) => {
     const x = (window.innerWidth - e.pageX * 2) / 100;
     const y = (window.innerHeight - e.pageY * 2) / 100;
@@ -32,16 +31,12 @@ if (hasGsap) {
     gsap.registerPlugin(...[ScrollTrigger, typeof ScrollToPlugin !== "undefined" ? ScrollToPlugin : null].filter(Boolean));
 }
 
-// Only stack the opening shot when the cinematic engine is actually available.
-// If the GSAP CDN fails, the hero and first scene stay in normal flow and the
-// page remains fully readable and scrollable.
 if (hasGsap && hasScrollTrigger) {
     document.documentElement.classList.add("cinematic");
 }
 
 const reducedMotionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
 
-// Keeps the story progress indicator in sync with the active scene
 function setStoryStep(step) {
     document.querySelectorAll(".story-step").forEach((s) => {
         s.classList.toggle("active", s.getAttribute("data-step") === step);
@@ -54,27 +49,14 @@ function setJourneyStep(step) {
     });
 }
 
-// ==========================================
-// VIBING ROADS — CINEMATIC SCROLL EXPERIENCE
-// The hero and both street scenes are one pinned
-// shot. Scrolling pushes the camera forward
-// through the landing page into the first street,
-// then dissolves into the next street. Neither
-// transition releases into a separate travel step.
-// ==========================================
-
 if (hasGsap && hasScrollTrigger) {
 
     const mm = gsap.matchMedia();
 
-    // The pinned cinematic journey is desktop/tablet only. On phones and
-    // for reduced-motion visitors, the scenes stay in normal document flow.
     mm.add("(min-width: 761px) and (prefers-reduced-motion: no-preference)", () => {
 
-        // Which progress step the journey indicator should display.
         let activeStage = "notice";
 
-        // ---------- initial states ----------
         gsap.set(".hero", { autoAlpha: 1 });
         gsap.set(".hero-bg", { scale: 1 });
         gsap.set(".scroll-one", { autoAlpha: 1 });
@@ -114,8 +96,6 @@ if (hasGsap && hasScrollTrigger) {
         gsap.set(".scroll-two .s2-mode-card", { y: 24 });
         gsap.set(".scroll-two .s2-location-pill, .scroll-two .s2-sound-control", { y: 15 });
 
-        // Fourth scene waits beneath the second street, already set up so the
-        // next camera push can reveal it without a hard cut.
         gsap.set(".scroll-three-bg", { scale: 1.18 });
 
         gsap.set([
@@ -131,9 +111,6 @@ if (hasGsap && hasScrollTrigger) {
         gsap.set(".scroll-three .s3-city-copy", { y: 10 });
         gsap.set(".scroll-three .s3-footer", { y: 18 });
 
-        // ---------- ONE PIN: HERO -> STREET -> NEXT STREET -> CITY ----------
-        // The first three scenes keep their original scroll pacing (0-0.74);
-        // the remaining 0.26 is the push into the city selector.
         const openingTimeline = gsap.timeline({
             scrollTrigger: {
                 id: "opening-pin",
@@ -471,7 +448,6 @@ function scrollToOpeningStage(progress, duration = 1.4) {
     return true;
 }
 
-// Hero Explore button — plays the push-in and settles on the first street.
 const exploreBtn = document.getElementById("explore-btn");
 if (exploreBtn) {
     exploreBtn.addEventListener("click", (e) => {
@@ -491,7 +467,6 @@ if (exploreBtn) {
     });
 }
 
-// Story/nav labels that point at a scene inside the pinned journey.
 [
     ['a[href="#notice"]', OPENING_STAGE_PROGRESS.notice],
     ['a[href="#next-section"]', OPENING_STAGE_PROGRESS.explore],
@@ -504,8 +479,6 @@ if (exploreBtn) {
     });
 });
 
-// Opening the page with #cities should land on the composed city scene,
-// not on the section's raw position inside the pinned shot.
 if (location.hash === "#cities") {
     window.addEventListener("load", () => {
         window.setTimeout(() => {
@@ -545,10 +518,6 @@ s2ModeCards.forEach((card) => {
 
 s2StartButtons.forEach((s2StartButton) => {
     s2StartButton.addEventListener("click", () => {
-        console.log("VIBING ROADS selected mode:", s2SelectedMode);
-
-        // On the pinned cinematic journey, jump to the fully composed city
-        // selector instead of a raw document position inside the pinned shot.
         if (scrollToOpeningStage(OPENING_STAGE_PROGRESS.choose)) return;
 
         const cities = document.querySelector("#cities");
@@ -568,10 +537,6 @@ s2StartButtons.forEach((s2StartButton) => {
     });
 });
 
-// ==========================================
-// VIBING ROADS — FOURTH SCROLL SECTION
-// ==========================================
-
 const s3CityCards = document.querySelectorAll(".s3-city-card");
 
 s3CityCards.forEach((card) => {
@@ -583,14 +548,8 @@ s3CityCards.forEach((card) => {
 
         card.classList.add("s3-city-selected");
         card.setAttribute("aria-pressed", "true");
-
-        console.log("VIBING ROADS city:", card.dataset.city);
     });
 });
-
-// ==========================================
-// Local clock based on user timezone
-// ==========================================
 
 function updateLocalClock() {
     const clocks = document.querySelectorAll("#s2-local-clock, #s3-local-clock, #local-clock");
@@ -610,11 +569,6 @@ function updateLocalClock() {
 updateLocalClock();
 setInterval(updateLocalClock, 60000);
 
-// ==========================================
-// Ambient sound toggle
-// ==========================================
-
-// Both pages use the same control, so they stay in sync.
 function setupSoundControls() {
     const controls = document.querySelectorAll(".s2-sound-control");
     const ambientAudio = document.getElementById("ambient-audio");
@@ -640,7 +594,6 @@ function setupSoundControls() {
                 const playPromise = ambientAudio.play();
                 if (playPromise !== undefined) {
                     playPromise.catch(() => {
-                        // Autoplay might be blocked; state remains as user requested
                     });
                 }
             } else {

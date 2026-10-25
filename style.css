@@ -21,14 +21,7 @@ body {
     min-height: 100vh;
 }
 
-/* ==========================================
-   OPENING SHOT
-   The hero and both street scenes are one
-   pinned composition on larger screens, so the
-   camera pushes forward through the landing page
-   into the first street, then into the next one,
-   with no separate travel between scenes.
-========================================== */
+
 
 .opening {
     position: relative;
@@ -92,7 +85,7 @@ body {
 
 }
 
-/* ========== HERO SECTION ========== */
+
 .hero {
     position: relative;
     isolation: isolate;
@@ -107,8 +100,6 @@ body {
     padding: 2rem 4rem 6rem;
 }
 
-/* Hero background lives on its own layer so the camera push-in can zoom
-   the image without scaling the navigation or headline. */
 .hero-bg {
     position: absolute;
     inset: 0;
@@ -252,7 +243,6 @@ body {
     transform: translateX(5px);
 }
 
-/* Hamburger */
 .hamburger {
     display: none;
     cursor: pointer;
@@ -269,7 +259,6 @@ body {
     transition: all 0.3s ease-in-out;
 }
 
-/* ========== FIRST SCROLL SECTION ========== */
 .scroll-one {
     --gold: #e6c991;
     --muted-gold: #a99570;
@@ -295,7 +284,6 @@ body {
     background: radial-gradient(ellipse at center, transparent 20%, rgba(0, 0, 0, 0.22) 100%);
 }
 
-/* Scroll background layers — each scene owns its own background */
 .scroll-one-bg,
 .scroll-two-bg {
     position: absolute;
@@ -370,7 +358,6 @@ body {
     margin: 28px auto;
 }
 
-/* Matches the journey indicator on the third page */
 .story-nav {
     position: relative;
     display: flex;
@@ -644,8 +631,6 @@ body {
     align-items: center;
 }
 
-/* The first street reuses the third page's sound control; only the
-   absolute corner placement is replaced by the footer grid. */
 .sound-pill .s2-sound-control {
     position: relative;
     right: auto;
@@ -662,7 +647,6 @@ body {
     letter-spacing: 5px;
 }
 
-/* ========== RESPONSIVE ========== */
 @media (max-width: 968px) {
     .hero {
         padding: 1.5rem 1rem 3rem;
@@ -733,7 +717,6 @@ body {
         gap: 28px;
         margin: 35px auto;
     }
-    /* The third page hides its journey indicator on phones, so match it. */
     .story-nav {
         display: none;
     }
@@ -807,10 +790,7 @@ body {
         font-size: 0.68rem;
     }
 }
-/* ==========================================
-   VIBING ROADS — SECOND SCROLLING SECTION
-   All styles are isolated with s2- classes
-========================================== */
+
 
 .scroll-two {
     --s2-gold: #dfbd82;
@@ -836,8 +816,6 @@ body {
     background-color: #10151b;
 }
 
-/* Dark cinematic overlay */
-
 .scroll-two-overlay {
     position: absolute;
     inset: 0;
@@ -859,9 +837,7 @@ body {
         );
 }
 
-/* ==========================================
-   HEADER / NAVIGATION
-========================================== */
+
 
 .s2-header {
     position: absolute;
@@ -937,9 +913,7 @@ body {
     background: rgba(255, 255, 255, 0.10);
 }
 
-/* ==========================================
-   LEFT JOURNEY INDICATOR
-========================================== */
+
 
 .s2-journey {
     position: absolute;
@@ -1027,9 +1001,7 @@ body {
     background: linear-gradient(110deg, #d6a861, #f0d39a);
 }
 
-/* ==========================================
-   MAIN LAYOUT
-========================================== */
+
 
 .s2-main {
     position: relative;
@@ -1046,8 +1018,6 @@ body {
 
     z-index: 1;
 }
-
-/* Left heading */
 
 .s2-intro {
     min-width: 0;
@@ -1102,9 +1072,7 @@ body {
     line-height: 1.55;
 }
 
-/* ==========================================
-   MODE SELECTION PANEL
-========================================== */
+
 
 .s2-panel {
     width: 100%;
@@ -1141,8 +1109,6 @@ body {
 
     background: var(--s2-gold);
 }
-
-/* Cards */
 
 .s2-mode-grid {
     display: grid;
@@ -1182,8 +1148,6 @@ body {
 
     box-shadow: 0 0 16px rgba(223, 189, 130, 0.15);
 }
-
-/* Card backgrounds */
 
 .s2-mode-image {
     width: 100%;
@@ -1234,9 +1198,7 @@ body {
     line-height: 1.6;
 }
 
-/* ==========================================
-   GOLD BUTTON
-========================================== */
+
 
 .s2-start-button {
     width: 100%;
@@ -1290,9 +1252,7 @@ body {
     transform: translateX(4px);
 }
 
-/* ==========================================
-   BOTTOM LOCATION PILL
-========================================== */
+
 
 .s2-location-pill {
     position: absolute;
@@ -1338,9 +1298,7 @@ body {
     color: rgba(255, 255, 255, 0.65);
 }
 
-/* ==========================================
-   AMBIENT SOUND CONTROL
-========================================== */
+
 
 .s2-sound-control {
     position: absolute;
@@ -1405,9 +1363,7 @@ body {
     transform: translateX(16px);
 }
 
-/* ==========================================
-   RESPONSIVE: TABLET
-========================================== */
+
 
 @media (max-width: 1100px) {
 
@@ -1437,9 +1393,7 @@ body {
 
 }
 
-/* ==========================================
-   RESPONSIVE: MOBILE
-========================================== */
+
 
 @media (max-width: 760px) {
 
@@ -1562,8 +1516,6 @@ body {
 
 }
 
-/* Extra-small screens */
-
 @media (max-width: 380px) {
 
     .s2-main {
@@ -1587,13 +1539,7 @@ body {
 
 }
 
-/* ==========================================
-   FOURTH PAGE — CHOOSE YOUR CITY
-   Layout follows the city-selection reference,
-   palette and typography follow the first three
-   pages: warm dark overlays, gold accents and
-   cream serif headings.
-========================================== */
+
 
 .scroll-three {
     --s3-gold: #dfbd82;
@@ -1654,8 +1600,6 @@ body {
         );
 }
 
-/* Content */
-
 .s3-content {
     position: relative;
     z-index: 1;
@@ -1704,8 +1648,6 @@ body {
 
     text-shadow: 0 2px 18px rgba(0, 0, 0, 0.55);
 }
-
-/* City cards */
 
 .s3-city-grid {
     display: grid;
@@ -1802,14 +1744,6 @@ body {
     filter: brightness(1.03) saturate(1.06);
 }
 
-/* City photography: Unsplash License / Pexels License (both free for
-   commercial use, no attribution required). Sources, in card order:
-   Tokyo      https://unsplash.com/photos/dbQOKaS2Xis
-   Paris      https://www.pexels.com/photo/eiffel-tower-2563986/
-   New York   https://unsplash.com/photos/esgaBSwXe8M
-   Istanbul   https://unsplash.com/photos/_63Z9xUczLU
-   Mumbai     https://unsplash.com/photos/5EI5JYMSvj8
-*/
 .s3-image-tokyo {
     background-image:
         linear-gradient(rgba(8, 6, 5, 0.08), rgba(8, 6, 5, 0.28)),
@@ -1887,8 +1821,6 @@ body {
     transform: translateX(3px);
 }
 
-/* Footer */
-
 .s3-footer {
     position: relative;
     z-index: 2;
@@ -1961,16 +1893,13 @@ body {
     line-height: 1;
 }
 
-/* Reuse the shared sound control, but let the footer place it. */
 .s3-footer .s3-sound-control {
     position: relative;
     right: auto;
     bottom: auto;
 }
 
-/* ==========================================
-   RESPONSIVE: FOURTH PAGE
-========================================== */
+
 
 @media (max-width: 1100px) {
 
@@ -2038,7 +1967,6 @@ body {
         font-size: 1rem;
     }
 
-    /* Swipeable row keeps all five cities on one line */
     .s3-city-grid {
         display: flex;
         gap: 12px;
@@ -2140,11 +2068,7 @@ body {
 
 }
 
-/* ==========================================
-   REDUCED MOTION
-   Simpler transitions for users who prefer
-   reduced animation
-========================================== */
+
 
 @media (prefers-reduced-motion: reduce) {
 
