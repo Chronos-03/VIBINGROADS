@@ -46,7 +46,8 @@ body {
 
     .cinematic .opening > .hero,
     .cinematic .opening > .scroll-one,
-    .cinematic .opening > .scroll-two {
+    .cinematic .opening > .scroll-two,
+    .cinematic .opening > .scroll-three {
         position: absolute;
         inset: 0;
         width: 100%;
@@ -64,6 +65,11 @@ body {
 
     .cinematic .opening > .scroll-two {
         z-index: 1;
+    }
+
+    .cinematic .opening > .scroll-three {
+        z-index: 0;
+        min-height: 0;
     }
 
     .hero-header {
@@ -1796,34 +1802,42 @@ body {
     filter: brightness(1.03) saturate(1.06);
 }
 
+/* City photography: Unsplash License / Pexels License (both free for
+   commercial use, no attribution required). Sources, in card order:
+   Tokyo      https://unsplash.com/photos/dbQOKaS2Xis
+   Paris      https://www.pexels.com/photo/eiffel-tower-2563986/
+   New York   https://unsplash.com/photos/esgaBSwXe8M
+   Istanbul   https://unsplash.com/photos/_63Z9xUczLU
+   Mumbai     https://unsplash.com/photos/5EI5JYMSvj8
+*/
 .s3-image-tokyo {
     background-image:
         linear-gradient(rgba(8, 6, 5, 0.08), rgba(8, 6, 5, 0.28)),
-        url("1st.png");
+        url("city-tokyo.jpg");
 }
 
 .s3-image-paris {
     background-image:
         linear-gradient(rgba(8, 6, 5, 0.08), rgba(8, 6, 5, 0.28)),
-        url("2nd.png");
+        url("city-paris.jpg");
 }
 
 .s3-image-newyork {
     background-image:
         linear-gradient(rgba(8, 6, 5, 0.08), rgba(8, 6, 5, 0.28)),
-        url("3rd.png");
+        url("city-newyork.jpg");
 }
 
 .s3-image-istanbul {
     background-image:
         linear-gradient(rgba(8, 6, 5, 0.08), rgba(8, 6, 5, 0.28)),
-        url("driving.png");
+        url("city-istanbul.jpg");
 }
 
 .s3-image-mumbai {
     background-image:
         linear-gradient(rgba(8, 6, 5, 0.08), rgba(8, 6, 5, 0.28)),
-        url("walking.png");
+        url("city-mumbai.jpg");
 }
 
 .s3-city-copy {

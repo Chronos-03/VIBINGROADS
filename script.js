@@ -114,19 +114,42 @@ if (hasGsap && hasScrollTrigger) {
         gsap.set(".scroll-two .s2-mode-card", { y: 24 });
         gsap.set(".scroll-two .s2-location-pill, .scroll-two .s2-sound-control", { y: 15 });
 
-        // ---------- ONE PIN: HERO -> STREET -> NEXT STREET ----------
+        // Fourth scene waits beneath the second street, already set up so the
+        // next camera push can reveal it without a hard cut.
+        gsap.set(".scroll-three-bg", { scale: 1.18 });
+
+        gsap.set([
+            ".scroll-three .s3-header",
+            ".scroll-three .s3-intro",
+            ".scroll-three .s3-city-grid",
+            ".scroll-three .s3-footer"
+        ], { autoAlpha: 0 });
+
+        gsap.set(".scroll-three .s3-header", { y: -22 });
+        gsap.set(".scroll-three .s3-intro", { y: 28 });
+        gsap.set(".scroll-three .s3-city-grid", { y: 22, scale: 1.04 });
+        gsap.set(".scroll-three .s3-city-copy", { y: 10 });
+        gsap.set(".scroll-three .s3-footer", { y: 18 });
+
+        // ---------- ONE PIN: HERO -> STREET -> NEXT STREET -> CITY ----------
+        // The first three scenes keep their original scroll pacing (0-0.74);
+        // the remaining 0.26 is the push into the city selector.
         const openingTimeline = gsap.timeline({
             scrollTrigger: {
                 id: "opening-pin",
                 trigger: ".opening",
                 start: "top top",
-                end: "+=460%",
+                end: "+=620%",
                 pin: true,
                 scrub: true,
                 anticipatePin: 1,
                 invalidateOnRefresh: true,
                 onUpdate: (self) => {
-                    const stage = self.progress >= 0.58 ? "explore" : "notice";
+                    const stage = self.progress >= 0.84
+                        ? "choose"
+                        : self.progress >= 0.58
+                            ? "explore"
+                            : "notice";
                     if (stage === activeStage) return;
                     activeStage = stage;
                     setStoryStep(stage);
@@ -262,7 +285,7 @@ if (hasGsap && hasScrollTrigger) {
         // The next background moves throughout, so the scene change is a
         // continuation of the same camera push.
         openingTimeline.to(".scroll-two-bg", {
-            scale: 1.4,
+            scale: 1.55,
             ease: "none",
             duration: 0.56
         }, 0.44);
@@ -310,6 +333,102 @@ if (hasGsap && hasScrollTrigger) {
             duration: 0.1,
             ease: "power2.out"
         }, 0.64);
+
+        // ---- SECOND STREET -> CITY SELECT ----
+        // The second street is pushed through and dissolved away, exactly
+        // like the earlier transitions. Its background keeps moving under the
+        // fade while the city background scales up from behind it.
+        openingTimeline.to(".scroll-two .s2-header", {
+            autoAlpha: 0,
+            y: -24,
+            duration: 0.08,
+            ease: "power2.in"
+        }, 0.74);
+
+        openingTimeline.to(".scroll-two .s2-journey", {
+            autoAlpha: 0,
+            x: -30,
+            duration: 0.08,
+            ease: "power2.in"
+        }, 0.74);
+
+        openingTimeline.to(".scroll-two .s2-intro", {
+            autoAlpha: 0,
+            y: -22,
+            duration: 0.08,
+            ease: "power2.in"
+        }, 0.75);
+
+        openingTimeline.to(".scroll-two .s2-panel", {
+            autoAlpha: 0,
+            x: 34,
+            filter: "blur(7px)",
+            duration: 0.09,
+            ease: "power2.in"
+        }, 0.75);
+
+        openingTimeline.to(".scroll-two .s2-mode-card", {
+            autoAlpha: 0,
+            y: 18,
+            duration: 0.07,
+            ease: "power2.in"
+        }, 0.75);
+
+        openingTimeline.to(".scroll-two .s2-location-pill, .scroll-two .s2-sound-control", {
+            autoAlpha: 0,
+            y: 16,
+            duration: 0.08,
+            ease: "power2.in"
+        }, 0.75);
+
+        openingTimeline.to(".scroll-two", {
+            autoAlpha: 0,
+            duration: 0.12,
+            ease: "none"
+        }, 0.78);
+
+        // Incoming city shot: same slow push-in used by every scene change.
+        openingTimeline.to(".scroll-three-bg", {
+            scale: 1.4,
+            ease: "none",
+            duration: 0.26
+        }, 0.74);
+
+        openingTimeline.to(".scroll-three .s3-header", {
+            autoAlpha: 1,
+            y: 0,
+            duration: 0.06,
+            ease: "power2.out"
+        }, 0.78);
+
+        openingTimeline.to(".scroll-three .s3-intro", {
+            autoAlpha: 1,
+            y: 0,
+            duration: 0.08,
+            ease: "power3.out"
+        }, 0.79);
+
+        openingTimeline.to(".scroll-three .s3-city-grid", {
+            autoAlpha: 1,
+            y: 0,
+            scale: 1,
+            duration: 0.1,
+            ease: "power2.out"
+        }, 0.8);
+
+        openingTimeline.to(".scroll-three .s3-city-copy", {
+            y: 0,
+            duration: 0.06,
+            stagger: 0.015,
+            ease: "power2.out"
+        }, 0.82);
+
+        openingTimeline.to(".scroll-three .s3-footer", {
+            autoAlpha: 1,
+            y: 0,
+            duration: 0.06,
+            ease: "power2.out"
+        }, 0.83);
     });
 
     // Recalculate pin ranges once fonts/images have settled.
@@ -323,7 +442,8 @@ if (hasGsap && hasScrollTrigger) {
 // destination scene is fully composed instead of halfway through a dissolve.
 const OPENING_STAGE_PROGRESS = {
     notice: 0.32,
-    explore: 0.8
+    explore: 0.8,
+    choose: 0.96
 };
 
 function getOpeningTrigger() {
@@ -374,7 +494,8 @@ if (exploreBtn) {
 // Story/nav labels that point at a scene inside the pinned journey.
 [
     ['a[href="#notice"]', OPENING_STAGE_PROGRESS.notice],
-    ['a[href="#next-section"]', OPENING_STAGE_PROGRESS.explore]
+    ['a[href="#next-section"]', OPENING_STAGE_PROGRESS.explore],
+    ['a[href="#cities"]', OPENING_STAGE_PROGRESS.choose]
 ].forEach(([selector, progress]) => {
     document.querySelectorAll(selector).forEach((link) => {
         link.addEventListener("click", (e) => {
@@ -382,6 +503,16 @@ if (exploreBtn) {
         });
     });
 });
+
+// Opening the page with #cities should land on the composed city scene,
+// not on the section's raw position inside the pinned shot.
+if (location.hash === "#cities") {
+    window.addEventListener("load", () => {
+        window.setTimeout(() => {
+            scrollToOpeningStage(OPENING_STAGE_PROGRESS.choose);
+        }, 60);
+    });
+}
 
 const s2ModeCards = document.querySelectorAll(".s2-mode-card");
 const s2StartButtons = document.querySelectorAll(".s2-start-button");
@@ -415,6 +546,10 @@ s2ModeCards.forEach((card) => {
 s2StartButtons.forEach((s2StartButton) => {
     s2StartButton.addEventListener("click", () => {
         console.log("VIBING ROADS selected mode:", s2SelectedMode);
+
+        // On the pinned cinematic journey, jump to the fully composed city
+        // selector instead of a raw document position inside the pinned shot.
+        if (scrollToOpeningStage(OPENING_STAGE_PROGRESS.choose)) return;
 
         const cities = document.querySelector("#cities");
         if (!cities) return;
@@ -452,82 +587,6 @@ s3CityCards.forEach((card) => {
         console.log("VIBING ROADS city:", card.dataset.city);
     });
 });
-
-if (hasGsap && hasScrollTrigger && !reducedMotionQuery.matches) {
-
-    // The city page arrives after the pinned opening, so its pieces lift in
-    // as the section clears the viewport edge.
-    gsap.from(".s3-intro h2, .s3-intro p", {
-        y: 30,
-        autoAlpha: 0,
-        duration: 1,
-        stagger: 0.12,
-        ease: "power3.out",
-        scrollTrigger: {
-            trigger: ".scroll-three",
-            start: "top 74%",
-            once: true
-        }
-    });
-
-    gsap.from(".s3-city-card", {
-        y: 40,
-        autoAlpha: 0,
-        duration: 0.9,
-        stagger: 0.08,
-        ease: "power3.out",
-        scrollTrigger: {
-            trigger: ".s3-city-grid",
-            start: "top 88%",
-            once: true
-        }
-    });
-
-    // Same slow camera push-in used by the street backgrounds, applied to
-    // each city image as the grid arrives. clearProps hands the transform
-    // back to CSS once the entrance finishes, so hover zoom still works.
-    gsap.from(".s3-city-image", {
-        scale: 1.14,
-        duration: 1.4,
-        stagger: 0.08,
-        ease: "power3.out",
-        clearProps: "transform",
-        scrollTrigger: {
-            trigger: ".s3-city-grid",
-            start: "top 88%",
-            once: true
-        }
-    });
-
-    gsap.from(".s3-header, .s3-footer", {
-        autoAlpha: 0,
-        y: 18,
-        duration: 0.8,
-        stagger: 0.1,
-        ease: "power2.out",
-        scrollTrigger: {
-            trigger: ".scroll-three",
-            start: "top 70%",
-            once: true
-        }
-    });
-
-    // Slow drift on the background keeps the same camera language as the
-    // earlier street scenes without pinning a fourth viewport.
-    gsap.fromTo(".scroll-three-bg", {
-        yPercent: -3
-    }, {
-        yPercent: 3,
-        ease: "none",
-        scrollTrigger: {
-            trigger: ".scroll-three",
-            start: "top bottom",
-            end: "bottom top",
-            scrub: true
-        }
-    });
-
-}
 
 // ==========================================
 // Local clock based on user timezone
