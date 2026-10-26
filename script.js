@@ -123,7 +123,7 @@ if (hasGsap && hasScrollTrigger) {
                 invalidateOnRefresh: true,
                 onUpdate: (self) => {
                     const stage = self.progress >= 0.84
-                        ? "choose"
+                        ? "feel"
                         : self.progress >= 0.58
                             ? "explore"
                             : "notice";
@@ -420,7 +420,7 @@ if (hasGsap && hasScrollTrigger) {
 const OPENING_STAGE_PROGRESS = {
     notice: 0.32,
     explore: 0.8,
-    choose: 0.96
+    feel: 0.96
 };
 
 function getOpeningTrigger() {
@@ -468,9 +468,7 @@ if (exploreBtn) {
 }
 
 [
-    ['a[href="#notice"]', OPENING_STAGE_PROGRESS.notice],
-    ['a[href="#next-section"]', OPENING_STAGE_PROGRESS.explore],
-    ['a[href="#cities"]', OPENING_STAGE_PROGRESS.choose]
+    ['a[href="#cities"]', OPENING_STAGE_PROGRESS.feel]
 ].forEach(([selector, progress]) => {
     document.querySelectorAll(selector).forEach((link) => {
         link.addEventListener("click", (e) => {

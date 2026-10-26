@@ -855,15 +855,21 @@ body {
 }
 
 .s2-logo {
-    color: #fff;
+    display: flex;
+    align-items: center;
+    gap : 12px;
     text-decoration: none;
-
-    font-family: "Cinzel", serif;
+    color: #fff;
+    font-family: "Cinzel" , serif;
     font-size: 19px;
-    font-weight: 600;
     letter-spacing: 4px;
-
     white-space: nowrap;
+}
+.logo-img {
+    height: 36px;
+    width: auto;
+    object-fit: contain;
+    display: block;
 }
 
 .s2-nav {
@@ -1408,8 +1414,22 @@ body {
     }
 
     .s2-logo {
-        font-size: 15px;
-        letter-spacing: 2px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        text-decoration: none;
+        color: #fff;
+        font-family: "Cinzel" , serif;
+        font-size: 19px;
+        font-weight: 60;
+        letter-spacing: 4px;
+        white-space: nowrap;
+    }
+    .logo-img {
+        height: 36px;
+        width: auto;
+        object-fit: contain;
+        display: block;
     }
 
     .s2-nav {
@@ -2097,4 +2117,11 @@ body {
         transform: none !important;
     }
 
+}
+.s3-journey{
+    position: absolute;
+    top:50%;
+    left: 4.2%;
+    transform: translateY(-50%);
+    z-index:2;
 }
