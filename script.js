@@ -1,28 +1,149 @@
-const hamburger = document.querySelector(".hamburger");
-const navMenu = document.querySelector(".nav-links");
+const reducedMotionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
 
-if (hamburger && navMenu) {
-    hamburger.addEventListener("click", () => {
-        hamburger.classList.toggle("active");
-        navMenu.classList.toggle("active");
-    });
+const heroBg = document.querySelector(".hero-bg");
+const canParallax = heroBg &&
+    window.matchMedia("(hover: hover) and (pointer: fine)").matches &&
+    !reducedMotionQuery.matches;
 
-    document.querySelectorAll(".nav-links a").forEach(link => {
-        link.addEventListener("click", () => {
-            hamburger.classList.remove("active");
-            navMenu.classList.remove("active");
-        });
-    });
+if (canParallax) {
+    let pointerX = 0;
+    let pointerY = 0;
+    let parallaxFrame = 0;
+
+    const renderParallax = () => {
+        parallaxFrame = 0;
+        heroBg.style.backgroundPosition = `calc(50% + ${pointerX}px) calc(50% + ${pointerY}px)`;
+    };
+
+    window.addEventListener("mousemove", (e) => {
+        if (window.scrollY > window.innerHeight) return;
+
+        pointerX = (window.innerWidth - e.clientX * 2) / 100;
+        pointerY = (window.innerHeight - e.clientY * 2) / 100;
+
+        if (!parallaxFrame) {
+            parallaxFrame = requestAnimationFrame(renderParallax);
+        }
+    }, { passive: true });
 }
 
-document.addEventListener("mousemove", (e) => {
-    const x = (window.innerWidth - e.pageX * 2) / 100;
-    const y = (window.innerHeight - e.pageY * 2) / 100;
-    const heroBg = document.querySelector(".hero-bg");
-    if (heroBg) {
-        heroBg.style.backgroundPosition = `calc(50% + ${x}px) calc(50% + ${y}px)`;
-    }
-});
+// trailing cursor (activates on the first mouse move)
+if (window.PointerEvent) {
+    const cursorEl = document.createElement("div");
+    const cursorShape = document.createElement("div");
+    const cursorLabel = document.createElement("span");
+
+    cursorEl.className = "cursor-follower";
+    cursorShape.className = "cursor-follower-shape";
+    cursorLabel.className = "cursor-follower-label";
+    cursorEl.setAttribute("aria-hidden", "true");
+    cursorLabel.textContent = "OPEN";
+    cursorEl.append(cursorShape, cursorLabel);
+    document.body.appendChild(cursorEl);
+    document.documentElement.classList.add("has-custom-cursor");
+    document.documentElement.classList.add("has-custom-cursor");
+
+    const hoverTargets = 'a, button, input, textarea, select, [role="button"], .s3-city-card, .s2-mode-card';
+    const CURSOR_EASE = 0.18;
+
+    let targetX = -100;
+    let targetY = -100;
+    let cursorX = -100;
+    let cursorY = -100;
+    let lastTime = 0;
+    let cursorFrame = 0;
+    let cursorVisible = false;
+
+    const drawCursor = (time) => {
+        cursorFrame = 0;
+
+        const elapsed = Math.min(48, time - lastTime || 16.7);
+        lastTime = time;
+
+        const factor = reducedMotionQuery.matches
+            ? 1
+            : 1 - Math.pow(1 - CURSOR_EASE, elapsed / 16.7);
+
+        cursorX += (targetX - cursorX) * factor;
+        cursorY += (targetY - cursorY) * factor;
+        cursorEl.style.transform = `translate3d(${cursorX}px, ${cursorY}px, 0)`;
+
+        if (Math.abs(targetX - cursorX) > 0.15 || Math.abs(targetY - cursorY) > 0.15) {
+            cursorFrame = requestAnimationFrame(drawCursor);
+        }
+    };
+
+    const showCursor = () => {
+        if (cursorVisible) return;
+        cursorVisible = true;
+        cursorEl.classList.add("is-visible");
+    };
+
+    const hideCursor = () => {
+        cursorVisible = false;
+        cursorEl.classList.remove("is-visible", "is-hover", "is-down");
+    };
+
+    window.addEventListener("pointermove", (e) => {
+        if (e.pointerType === "touch") return;
+
+        if (!cursorVisible) {
+            targetX = cursorX = e.clientX;
+            targetY = cursorY = e.clientY;
+            document.documentElement.classList.add("has-custom-cursor");
+            showCursor();
+        }
+
+        targetX = e.clientX;
+        targetY = e.clientY;
+
+        if (!cursorFrame) {
+            cursorFrame = requestAnimationFrame(drawCursor);
+        }
+    }, { passive: true });
+
+    document.addEventListener("pointerover", (e) => {
+        if (e.pointerType === "touch") return;
+        if (!(e.target instanceof Element)) return;
+
+        const target = e.target.closest(hoverTargets);
+        if (!target) return;
+
+        cursorLabel.textContent = target.dataset.cursorLabel || "OPEN";
+        cursorEl.classList.add("is-hover");
+    });
+
+    document.addEventListener("pointerout", (e) => {
+        if (e.pointerType === "touch") return;
+        if (!(e.target instanceof Element)) return;
+
+        const from = e.target.closest(hoverTargets);
+        if (!from) return;
+
+        const to = e.relatedTarget instanceof Element ? e.relatedTarget.closest(hoverTargets) : null;
+        if (to !== from) {
+            cursorEl.classList.remove("is-hover", "is-down");
+        }
+    });
+
+    document.addEventListener("pointerdown", (e) => {
+        if (e.pointerType === "touch") {
+            document.documentElement.classList.remove("has-custom-cursor");
+            hideCursor();
+            return;
+        }
+        cursorEl.classList.add("is-down");
+    });
+
+    const releaseCursor = () => {
+        cursorEl.classList.remove("is-down");
+    };
+
+    document.addEventListener("pointerup", releaseCursor);
+    document.addEventListener("pointercancel", releaseCursor);
+    document.addEventListener("mouseleave", hideCursor);
+    window.addEventListener("blur", hideCursor);
+}
 
 const hasGsap = typeof gsap !== "undefined";
 const hasScrollTrigger = typeof ScrollTrigger !== "undefined";
@@ -33,9 +154,9 @@ if (hasGsap) {
 
 if (hasGsap && hasScrollTrigger) {
     document.documentElement.classList.add("cinematic");
+} else {
+    document.documentElement.classList.remove("cinematic");
 }
-
-const reducedMotionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
 
 function setStoryStep(step) {
     document.querySelectorAll(".story-step").forEach((s) => {
@@ -525,6 +646,7 @@ const cityData = {
         endPitch: 62,
         endBearing: 28,
         videoFile: "videos/tokyo.mp4",
+        poster: "city-tokyo.webp",
         country: "Japan",
         tagline: "Shinjuku & Shibuya Neon Corridors"
     },
@@ -535,6 +657,7 @@ const cityData = {
         endPitch: 62,
         endBearing: -22,
         videoFile: "videos/paris.mp4",
+        poster: "city-paris.webp",
         country: "France",
         tagline: "Haussmann Boulevards & Seine Glow"
     },
@@ -545,6 +668,7 @@ const cityData = {
         endPitch: 63,
         endBearing: -36,
         videoFile: "videos/newyork.mp4",
+        poster: "city-newyork.webp",
         country: "United States",
         tagline: "Manhattan Canyons & 5th Avenue"
     },
@@ -555,6 +679,7 @@ const cityData = {
         endPitch: 58,
         endBearing: 16,
         videoFile: "videos/istanbul.mp4",
+        poster: "city-istanbul.webp",
         country: "Turkey",
         tagline: "Bosphorus Crossings & Historic Old City"
     },
@@ -565,6 +690,7 @@ const cityData = {
         endPitch: 60,
         endBearing: -14,
         videoFile: "videos/mumbai.mp4",
+        poster: "city-mumbai.webp",
         country: "India",
         tagline: "Colonial Grandeur & Coastal Roads"
     },
@@ -580,26 +706,59 @@ const cityData = {
     }
 };
 
-// Verified official Mapbox public token
+// mapbox public token
 const MAPBOX_DEFAULT_TOKEN = "pk.eyJ1IjoiZXhhbXBsZXMiLCJhIjoiY2xxeTBib3pyMGsxcTJpbXQ3bmo4YXU0ZiJ9.wvqlBMQSxTHgvAh6l9OXXw";
+
+const MAPBOX_CSS_URL = "https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css";
+const MAPBOX_JS_URL = "https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js";
+let mapboxLoadPromise = null;
+
+// loaded on demand
+function loadMapbox() {
+    if (typeof mapboxgl !== "undefined") return Promise.resolve();
+
+    if (mapboxLoadPromise) return mapboxLoadPromise;
+
+    mapboxLoadPromise = new Promise((resolve, reject) => {
+        if (!document.querySelector(`link[href="${MAPBOX_CSS_URL}"]`)) {
+            const stylesheet = document.createElement("link");
+            stylesheet.rel = "stylesheet";
+            stylesheet.href = MAPBOX_CSS_URL;
+            document.head.appendChild(stylesheet);
+        }
+
+        const script = document.createElement("script");
+        script.src = MAPBOX_JS_URL;
+        script.async = true;
+        script.onload = () => resolve();
+        script.onerror = () => {
+            mapboxLoadPromise = null;
+            reject(new Error("Unable to load the Mapbox engine."));
+        };
+        document.head.appendChild(script);
+    });
+
+    return mapboxLoadPromise;
+}
 
 function getActiveMapboxToken() {
     return window.MAPBOX_ACCESS_TOKEN || localStorage.getItem("MAPBOX_ACCESS_TOKEN") || MAPBOX_DEFAULT_TOKEN;
 }
 
-// Modal State Management
+// modal state
 let activeMap = null;
 let isModalOpen = false;
 let isTransitioningToVideo = false;
 let mapFlightTimeout = null;
-let autoplayCheckTimer = null;
 let wasAmbientPlaying = false;
 let currentCityData = null;
+let lastFocusedElement = null;
 
 const cityModal = document.getElementById("city-modal");
 const cityModalBackdrop = document.getElementById("city-modal-backdrop");
 const cityModalDialog = cityModal ? cityModal.querySelector(".city-modal-dialog") : null;
 const cityModalCloseBtn = document.getElementById("city-modal-close");
+const cityModalFsBtn = document.getElementById("city-modal-fs-btn");
 const cityModalSkipBtn = document.getElementById("city-modal-skip-btn");
 const cityModalTitle = document.getElementById("city-modal-title");
 const cityModalCountry = document.getElementById("city-modal-country");
@@ -748,6 +907,7 @@ function openCityModal(cityKey) {
     isModalOpen = true;
     isTransitioningToVideo = false;
     currentCityData = city;
+    lastFocusedElement = document.activeElement instanceof HTMLElement ? document.activeElement : null;
 
     const ambientAudio = document.getElementById("ambient-audio");
     if (ambientAudio) {
@@ -757,22 +917,29 @@ function openCityModal(cityKey) {
         }
     }
 
-    // Populate header info
     if (cityModalTitle) cityModalTitle.textContent = city.name;
     if (cityModalCountry) cityModalCountry.textContent = city.country || "";
-    if (cityModalCoords) {
+    if (cityModalCoords && city.coords) {
         const [lng, lat] = city.coords;
         const latStr = `${Math.abs(lat).toFixed(4)}° ${lat >= 0 ? "N" : "S"}`;
         const lngStr = `${Math.abs(lng).toFixed(4)}° ${lng >= 0 ? "E" : "W"}`;
         cityModalCoords.textContent = `${latStr}, ${lngStr}`;
     }
+
     if (hudTargetName) hudTargetName.textContent = `TARGET: ${city.name.toUpperCase()}`;
     if (hudCameraZoom) hudCameraZoom.textContent = "ZOOM: 2.0";
     if (hudAltitudeLabel) hudAltitudeLabel.textContent = "STRATOSPHERE (50 KM)";
 
     updateModalStatus("LOCATING SATELLITE...");
 
-    // Reset stages
+    const isWalking = (typeof s2SelectedMode !== "undefined" && s2SelectedMode === "walking");
+    if (videoModeBadge) {
+        videoModeBadge.textContent = isWalking ? "WALKING TOUR" : "DRIVING TOUR";
+    }
+    if (videoCityTag) {
+        videoCityTag.textContent = `${city.name}, ${city.country || ""}`;
+    }
+
     if (cityMapStage) {
         cityMapStage.style.display = "block";
         cityMapStage.style.opacity = "1";
@@ -785,41 +952,43 @@ function openCityModal(cityKey) {
     if (cityVideoPlayOverlay) cityVideoPlayOverlay.style.display = "none";
     if (cityModalSkipBtn) cityModalSkipBtn.style.display = "inline-flex";
 
-    // Show modal container
+    cityModal.classList.remove("is-video-active", "controls-hidden");
     cityModal.classList.add("is-active");
     cityModal.setAttribute("aria-hidden", "false");
+    cityModal.style.opacity = "1";
     document.body.classList.add("city-modal-open");
+    if (cityModalCloseBtn) cityModalCloseBtn.focus({ preventScroll: true });
 
-    // GSAP Open Animation (fade + slight scale in)
-    if (typeof gsap !== "undefined") {
-        gsap.killTweensOf([cityModalBackdrop, cityModalDialog]);
-        gsap.fromTo(cityModalBackdrop, 
-            { opacity: 0 }, 
-            { opacity: 1, duration: 0.35, ease: "power2.out" }
-        );
-        gsap.fromTo(cityModalDialog, 
-            { opacity: 0, scale: 0.94, y: 15 }, 
-            { 
-                opacity: 1, 
-                scale: 1, 
-                y: 0, 
-                duration: 0.45, 
-                ease: "power3.out",
-                onComplete: () => {
-                    initCityMap(city);
-                }
-            }
-        );
-    } else {
-        cityModalBackdrop.style.opacity = "1";
-        cityModalDialog.style.opacity = "1";
-        cityModalDialog.style.transform = "scale(1)";
-        initCityMap(city);
+    // Preload video in the background for instant transition
+    if (cityVideo) {
+        const videoSrc = city.videoFile || `videos/${(city.name || "").toLowerCase().replace(/\s+/g, "")}.mp4`;
+        if (cityVideo.getAttribute("src") !== videoSrc) {
+            cityVideo.src = videoSrc;
+            cityVideo.load();
+        }
     }
+
+    // Launch the 3D map animation in fullground!
+    initCityMap(city);
 }
 
-function initCityMap(city) {
+async function initCityMap(city) {
     if (!cityModal || !cityModal.classList.contains("is-active")) return;
+
+    try {
+        await loadMapbox();
+    } catch (error) {
+        console.warn("Mapbox failed to load:", error);
+        if (currentCityData !== city) return;
+        showMapError(
+            "Satellite Engine Offline",
+            "The 3D map could not be loaded. You can still continue to the street tour."
+        );
+        return;
+    }
+
+    if (!cityModal || !cityModal.classList.contains("is-active")) return;
+    if (currentCityData !== city) return;
 
     const token = getActiveMapboxToken();
     const isMapboxAvailable = typeof mapboxgl !== "undefined" && (typeof mapboxgl.supported === "function" ? mapboxgl.supported() : true);
@@ -853,9 +1022,9 @@ function initCityMap(city) {
             zoom: startZoom,
             pitch: 0,
             bearing: 0,
-            preserveDrawingBuffer: true,
-            attributionControl: false,
-            antialias: true
+            antialias: true,
+            renderWorldCopies: false,
+            attributionControl: false
         });
 
         activeMap = map;
@@ -866,7 +1035,7 @@ function initCityMap(city) {
         const onMapReady = () => {
             if (!activeMap) return;
 
-            // 1. Vibrant Atmospheric Space Fog & Horizon Glow
+            // fog
             if (typeof map.setFog === "function") {
                 map.setFog({
                     range: [0.5, 10],
@@ -878,7 +1047,7 @@ function initCityMap(city) {
                 });
             }
 
-            // 2. Beautiful Palette: Luminous Sapphire Water, Emerald Parks, Glowing Golden Arteries
+            // map colors
             try {
                 if (map.getLayer("background")) {
                     map.setPaintProperty("background", "background-color", "#0c111d");
@@ -912,7 +1081,7 @@ function initCityMap(city) {
                 }
             } catch (err) {}
 
-            // 3. Insert 3D Extruded Buildings Layer with Warm Gold and Architectural Facades
+            // 3d buildings
             const currentStyle = map.getStyle();
             if (currentStyle && currentStyle.layers) {
                 let labelLayerId;
@@ -943,12 +1112,12 @@ function initCityMap(city) {
                                     "interpolate",
                                     ["linear"],
                                     ["get", heightProp],
-                                    0, "#1c2538",     // architectural steel base
-                                    25, "#2b3952",    // illuminated facade
-                                    60, "#485b7e",    // architectural glass
-                                    120, "#c59a48",   // warm bronze
-                                    220, "#dfbd82",   // luminous gold
-                                    340, "#ffe59e"    // penthouse gold beacon
+                                    0, "#1c2538",
+                                    25, "#2b3952",
+                                    60, "#485b7e",
+                                    120, "#c59a48",
+                                    220, "#dfbd82",
+                                    340, "#ffe59e"
                                 ],
                                 "fill-extrusion-height": [
                                     "interpolate",
@@ -980,11 +1149,10 @@ function initCityMap(city) {
             hasFlightStarted = true;
 
             map.resize();
-            updateModalStatus("DESCENDING TO CITY…");
+            updateModalStatus("DESCENDING TO CITY...");
             if (hudAltitudeLabel) hudAltitudeLabel.textContent = "STRATOSPHERE (50 KM)";
 
-            // 2. Camera smoothly flies down while tilting into 3D perspective (~60° pitch)
-            // Duration ~5.2 seconds (cinematic ~4-6s)
+            // fly down to street level
             map.flyTo({
                 center: city.coords,
                 zoom: targetZoom,
@@ -1004,13 +1172,12 @@ function initCityMap(city) {
             map.once("style.load", onMapReady);
         }
 
-        // Live telemetry updater during flight (continuously updates altitude text)
+        // readout while the camera moves
         const updateTelemetry = () => {
             if (!activeMap) return;
             const z = map.getZoom();
             if (hudCameraZoom) hudCameraZoom.textContent = `ZOOM: ${z.toFixed(1)}`;
 
-            // Exponential altitude mapping from 50 km down to city level (250 m)
             const progress = Math.min(1, Math.max(0, (z - 2.0) / (targetZoom - 2.0)));
             const altKm = 50 * Math.pow(0.005, progress);
 
@@ -1036,22 +1203,28 @@ function initCityMap(city) {
         };
 
         map.on("move", updateTelemetry);
-        map.on("render", updateTelemetry);
 
-        // When 3D camera flight finishes
+        // flight done
         map.once("moveend", () => {
             if (!hasFlightStarted) return;
             isFlightCompleted = true;
 
+            map.off("move", updateTelemetry);
+
+            if (mapFlightTimeout) {
+                clearTimeout(mapFlightTimeout);
+                mapFlightTimeout = null;
+            }
+
             updateModalStatus("3D SKYLINE ACTIVE • ENTERING STREET LEVEL");
             if (hudAltitudeLabel) hudAltitudeLabel.textContent = "CITY LEVEL (GROUND)";
 
-            // Hold on the 3D skyline before transitioning to street video
+            // short pause to absorb the skyline, then glide into street video
             setTimeout(() => {
                 if (!isTransitioningToVideo && isModalOpen) {
                     transitionToVideo(city);
                 }
-            }, 3200);
+            }, 1200);
         });
 
         map.on("error", (e) => {
@@ -1061,12 +1234,12 @@ function initCityMap(city) {
             }
         });
 
-        // Safety fallback timer if moveend takes too long
+        // fallback if moveend never fires
         mapFlightTimeout = setTimeout(() => {
-            if (!isTransitioningToVideo) {
+            if (!isTransitioningToVideo && isModalOpen) {
                 transitionToVideo(city);
             }
-        }, 9500);
+        }, 7500);
 
     } catch (err) {
         console.error("Map initialization failed:", err);
@@ -1078,10 +1251,16 @@ function transitionToVideo(city) {
     if (isTransitioningToVideo) return;
     isTransitioningToVideo = true;
 
+    if (activeMap) {
+        try { activeMap.stop(); } catch (e) {}
+    }
+
     if (mapFlightTimeout) {
         clearTimeout(mapFlightTimeout);
         mapFlightTimeout = null;
     }
+
+    cityModal.classList.add("is-video-active");
 
     if (cityModalSkipBtn) {
         cityModalSkipBtn.style.display = "none";
@@ -1089,12 +1268,13 @@ function transitionToVideo(city) {
 
     updateModalStatus("STREET IMMERSION ACTIVE");
 
-    // GSAP smooth transition from map to video
+    // Seamless map to video transition
     if (typeof gsap !== "undefined") {
+        gsap.killTweensOf([cityMapStage, cityVideoStage]);
         const tl = gsap.timeline();
         tl.to(cityMapStage, {
             opacity: 0,
-            duration: 0.7,
+            duration: 0.6,
             ease: "power2.inOut",
             onComplete: () => {
                 if (cityMapStage) cityMapStage.style.display = "none";
@@ -1102,18 +1282,20 @@ function transitionToVideo(city) {
         });
 
         tl.fromTo(cityVideoStage, 
-            { opacity: 0, scale: 1.03 }, 
+            { opacity: 0 }, 
             {
                 opacity: 1,
-                scale: 1,
-                duration: 0.7,
+                duration: 0.6,
                 ease: "power2.out",
                 onStart: () => {
-                    if (cityVideoStage) cityVideoStage.style.display = "block";
+                    if (cityVideoStage) {
+                        cityVideoStage.style.display = "block";
+                        cityVideoStage.style.opacity = "1";
+                    }
                     startCityVideo(city);
                 }
             },
-            "-=0.25"
+            "-=0.2"
         );
     } else {
         if (cityMapStage) cityMapStage.style.display = "none";
@@ -1128,7 +1310,6 @@ function transitionToVideo(city) {
 function startCityVideo(city) {
     if (!cityVideo) return;
 
-    // Update Mode & City tags in HUD
     const isWalking = (typeof s2SelectedMode !== "undefined" && s2SelectedMode === "walking");
     if (videoModeBadge) {
         videoModeBadge.textContent = isWalking ? "WALKING TOUR" : "DRIVING TOUR";
@@ -1137,23 +1318,36 @@ function startCityVideo(city) {
         videoCityTag.textContent = `${city.name}, ${city.country || ""}`;
     }
 
-    // Determine local MP4 file path
-    const videoSrc = city.videoFile || `videos/${(city.name || "").toLowerCase().replace(/\s+/g, "")}.mp4`;
-
-    // Only set src if not already loaded
-    if (cityVideo.getAttribute("src") !== videoSrc) {
-        cityVideo.src = videoSrc;
-        cityVideo.load();
+    // poster while buffering
+    if (city.poster) {
+        cityVideo.setAttribute("poster", city.poster);
+    } else {
+        cityVideo.removeAttribute("poster");
     }
 
-    // Default to muted so browser allows seamless immediate autoplay
+    const videoSrc = city.videoFile || `videos/${(city.name || "").toLowerCase().replace(/\s+/g, "")}.mp4`;
+
+    const currentSrc = cityVideo.getAttribute("src") || "";
+    if (currentSrc !== videoSrc) {
+        cityVideo.src = videoSrc;
+    }
+
+    // Ensure audio & autoplay compatibility attributes
     cityVideo.muted = true;
+    cityVideo.defaultMuted = true;
+    cityVideo.playsInline = true;
+    cityVideo.setAttribute("playsinline", "");
     updateAudioButtonUI(false);
+
+    try {
+        cityVideo.currentTime = 0;
+    } catch (e) {}
 
     const playPromise = cityVideo.play();
     if (playPromise !== undefined) {
         playPromise.then(() => {
             hidePlayOverlay();
+            resetControlsTimer();
         }).catch((err) => {
             console.warn("Autoplay blocked by browser policy, showing play overlay:", err);
             showPlayOverlay();
@@ -1189,7 +1383,23 @@ if (cityVideoBigPlay) {
         if (cityVideo) {
             cityVideo.play().then(() => {
                 hidePlayOverlay();
+                resetControlsTimer();
             }).catch(() => {});
+        }
+    });
+}
+
+if (cityVideo) {
+    cityVideo.addEventListener("click", () => {
+        if (cityVideo.paused) {
+            cityVideo.play().then(() => {
+                hidePlayOverlay();
+                resetControlsTimer();
+            }).catch(() => {});
+        } else {
+            cityVideo.pause();
+            showPlayOverlay();
+            if (cityModal) cityModal.classList.remove("controls-hidden");
         }
     });
 }
@@ -1209,20 +1419,96 @@ function hidePlayOverlay() {
     }
 }
 
+let controlsTimeout = null;
+
+function resetControlsTimer() {
+    if (!cityModal) return;
+    cityModal.classList.remove("controls-hidden");
+    if (controlsTimeout) {
+        clearTimeout(controlsTimeout);
+        controlsTimeout = null;
+    }
+    if (isModalOpen && cityVideo && !cityVideo.paused) {
+        controlsTimeout = setTimeout(() => {
+            if (isModalOpen && cityVideo && !cityVideo.paused) {
+                cityModal.classList.add("controls-hidden");
+            }
+        }, 3200);
+    }
+}
+
+if (cityModal) {
+    cityModal.addEventListener("mousemove", resetControlsTimer);
+    cityModal.addEventListener("touchstart", resetControlsTimer, { passive: true });
+}
+
+function toggleBrowserFullscreen() {
+    if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+        const target = cityModal || document.documentElement;
+        if (target.requestFullscreen) {
+            target.requestFullscreen().catch(() => {});
+        } else if (target.webkitRequestFullscreen) {
+            target.webkitRequestFullscreen();
+        }
+    } else {
+        if (document.exitFullscreen) {
+            document.exitFullscreen().catch(() => {});
+        } else if (document.webkitExitFullscreen) {
+            document.webkitExitFullscreen();
+        }
+    }
+}
+
+function updateFullscreenUI() {
+    const isFs = !!(document.fullscreenElement || document.webkitFullscreenElement);
+    if (cityModalFsBtn) {
+        const expandIcon = cityModalFsBtn.querySelector(".fs-expand-icon");
+        const compressIcon = cityModalFsBtn.querySelector(".fs-compress-icon");
+        const label = document.getElementById("city-modal-fs-label");
+        if (expandIcon) expandIcon.style.display = isFs ? "none" : "inline-block";
+        if (compressIcon) compressIcon.style.display = isFs ? "inline-block" : "none";
+        if (label) label.textContent = isFs ? "EXIT" : "FULLSCREEN";
+    }
+}
+
+document.addEventListener("fullscreenchange", updateFullscreenUI);
+document.addEventListener("webkitfullscreenchange", updateFullscreenUI);
+
+if (cityModalFsBtn) {
+    cityModalFsBtn.addEventListener("click", toggleBrowserFullscreen);
+}
+
+function restoreModalFocus() {
+    if (lastFocusedElement && typeof lastFocusedElement.focus === "function") {
+        lastFocusedElement.focus({ preventScroll: true });
+    }
+    lastFocusedElement = null;
+}
+
 function closeCityModal() {
     if (!isModalOpen) return;
     isModalOpen = false;
+    isTransitioningToVideo = false;
+    currentCityData = null;
+
+    if (controlsTimeout) {
+        clearTimeout(controlsTimeout);
+        controlsTimeout = null;
+    }
+
+    if (document.fullscreenElement || document.webkitFullscreenElement) {
+        try {
+            if (document.exitFullscreen) document.exitFullscreen();
+            else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+        } catch (e) {}
+    }
 
     if (mapFlightTimeout) {
         clearTimeout(mapFlightTimeout);
         mapFlightTimeout = null;
     }
-    if (autoplayCheckTimer) {
-        clearTimeout(autoplayCheckTimer);
-        autoplayCheckTimer = null;
-    }
 
-    // 1. Pause and reset local video completely (halt sound & free decoding memory)
+    // stop video
     if (cityVideo) {
         cityVideo.pause();
         cityVideo.removeAttribute("src");
@@ -1230,7 +1516,7 @@ function closeCityModal() {
     }
     hidePlayOverlay();
 
-    // 2. Destroy Mapbox instance cleanly
+    // drop map
     if (activeMap) {
         try {
             activeMap.remove();
@@ -1241,26 +1527,18 @@ function closeCityModal() {
         cityMapContainer.innerHTML = "";
     }
 
-    // 3. GSAP Close Animation
+    // close animation
     if (typeof gsap !== "undefined") {
-        gsap.killTweensOf([cityModalDialog, cityModalBackdrop]);
-        gsap.to(cityModalDialog, {
-            opacity: 0,
-            scale: 0.94,
-            y: 12,
-            duration: 0.3,
-            ease: "power2.in"
-        });
-        gsap.to(cityModalBackdrop, {
+        gsap.killTweensOf([cityModal]);
+        gsap.to(cityModal, {
             opacity: 0,
             duration: 0.3,
-            ease: "power2.in",
+            ease: "power2.inOut",
             onComplete: () => {
-                cityModal.classList.remove("is-active");
+                cityModal.classList.remove("is-active", "is-video-active", "controls-hidden");
                 cityModal.setAttribute("aria-hidden", "true");
                 document.body.classList.remove("city-modal-open");
 
-                // Reset stage states
                 if (cityMapStage) {
                     cityMapStage.style.display = "block";
                     cityMapStage.style.opacity = "1";
@@ -1270,10 +1548,11 @@ function closeCityModal() {
                     cityVideoStage.style.opacity = "0";
                 }
                 hidePlayOverlay();
+                restoreModalFocus();
             }
         });
     } else {
-        cityModal.classList.remove("is-active");
+        cityModal.classList.remove("is-active", "is-video-active", "controls-hidden");
         cityModal.setAttribute("aria-hidden", "true");
         document.body.classList.remove("city-modal-open");
         if (cityMapStage) {
@@ -1285,9 +1564,10 @@ function closeCityModal() {
             cityVideoStage.style.opacity = "0";
         }
         hidePlayOverlay();
+        restoreModalFocus();
     }
 
-    // Resume ambient background audio if it was active before opening
+    // resume ambient audio
     const ambientAudio = document.getElementById("ambient-audio");
     if (ambientAudio && wasAmbientPlaying) {
         ambientAudio.play().catch(() => {});
@@ -1295,7 +1575,7 @@ function closeCityModal() {
     }
 }
 
-// Attach Event Listeners
+// events
 if (cityModalCloseBtn) {
     cityModalCloseBtn.addEventListener("click", closeCityModal);
 }
@@ -1338,32 +1618,67 @@ if (fallbackSaveBtn && mapboxTokenInput) {
     });
 }
 
-if (cityVideoBigPlay) {
-    cityVideoBigPlay.addEventListener("click", () => {
-        hidePlayOverlay();
-        if (activeYtPlayer && typeof activeYtPlayer.playVideo === "function") {
-            try { activeYtPlayer.playVideo(); } catch (e) {}
-        }
-        sendIframeCommand("playVideo");
-    });
-}
-
-window.addEventListener("message", (e) => {
-    try {
-        const data = typeof e.data === "string" ? JSON.parse(e.data) : e.data;
-        if (data && data.event === "onStateChange" && data.info === 1) {
-            hidePlayOverlay();
-        }
-    } catch (err) {}
-});
-
 document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape" && isModalOpen) {
+    if (!isModalOpen) return;
+
+    if (e.key === "Escape") {
         closeCityModal();
+        return;
+    }
+
+    if (e.code === "Space" && e.target.tagName !== "INPUT" && e.target.tagName !== "TEXTAREA") {
+        e.preventDefault();
+        if (cityVideo) {
+            if (cityVideo.paused) {
+                cityVideo.play().then(() => {
+                    hidePlayOverlay();
+                    resetControlsTimer();
+                }).catch(() => {});
+            } else {
+                cityVideo.pause();
+                showPlayOverlay();
+                if (cityModal) cityModal.classList.remove("controls-hidden");
+            }
+        }
+        return;
+    }
+
+    if ((e.key === "m" || e.key === "M") && e.target.tagName !== "INPUT") {
+        e.preventDefault();
+        toggleCityVideoAudio();
+        resetControlsTimer();
+        return;
+    }
+
+    if ((e.key === "f" || e.key === "F") && e.target.tagName !== "INPUT") {
+        e.preventDefault();
+        toggleBrowserFullscreen();
+        resetControlsTimer();
+        return;
+    }
+
+    // focus trap
+    if (e.key === "Tab" && cityModalDialog) {
+        const focusable = Array.from(
+            cityModalDialog.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])')
+        ).filter((element) => !element.disabled && element.offsetParent !== null);
+
+        if (!focusable.length) return;
+
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+
+        if (e.shiftKey && document.activeElement === first) {
+            e.preventDefault();
+            last.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+            e.preventDefault();
+            first.focus();
+        }
     }
 });
 
-// City Cards Click Handling
+// city cards
 const s3CityCards = document.querySelectorAll(".s3-city-card");
 
 s3CityCards.forEach((card) => {
@@ -1378,7 +1693,6 @@ s3CityCards.forEach((card) => {
         card.classList.add("s3-city-selected");
         card.setAttribute("aria-pressed", "true");
 
-        // Read selected city key from data-city
         const rawCity = card.getAttribute("data-city") || "";
         const cityKey = rawCity.toLowerCase().replace(/\s+/g, "");
 
@@ -1386,7 +1700,7 @@ s3CityCards.forEach((card) => {
     });
 });
 
-// Auto-open city modal if requested via URL param (e.g. ?openCity=paris)
+// open a city from ?openCity=paris
 const searchParams = new URLSearchParams(window.location.search);
 const queryCity = searchParams.get("openCity");
 if (queryCity && cityData[queryCity.toLowerCase()]) {
