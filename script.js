@@ -705,8 +705,33 @@ const cityData = {
         poster: "city-lisbon.webp",
         country: "Portugal",
         tagline: "Cobblestone Hills & Pastel Quarters"
+    },
+    seoul: {
+        name: "Seoul",
+        coords: [126.9780, 37.5665],
+        endZoom: 15.5,
+        endPitch: 62,
+        endBearing: 22,
+        videoFile: "videos/seoul.mp4",
+        poster: "city-seoul.webp",
+        country: "South Korea",
+        tagline: "Gangnam Corridors & Han River Glow"
+    },
+    cairo: {
+        name: "Cairo",
+        coords: [31.2357, 30.0444],
+        endZoom: 15.3,
+        endPitch: 60,
+        endBearing: -16,
+        videoFile: "videos/cairo.mp4",
+        poster: "city-cairo.webp",
+        country: "Egypt",
+        tagline: "Nile Boulevards & Historic Citadel"
     }
 };
+
+// Alias common typo
+cityData.cario = cityData.cairo;
 
 // mapbox public token
 const MAPBOX_DEFAULT_TOKEN = "pk.eyJ1IjoiZXhhbXBsZXMiLCJhIjoiY2xxeTBib3pyMGsxcTJpbXQ3bmo4YXU0ZiJ9.wvqlBMQSxTHgvAh6l9OXXw";
@@ -951,9 +976,30 @@ function updateModalStatus(text) {
     }
 }
 
+function showUpcomingToast(cityName) {
+    let toast = document.getElementById("s3-upcoming-toast");
+    if (!toast) {
+        toast = document.createElement("div");
+        toast.id = "s3-upcoming-toast";
+        toast.className = "s3-upcoming-toast";
+        document.body.appendChild(toast);
+    }
+    toast.innerHTML = `<span class="toast-dot">✦</span> <strong>${cityName}</strong> expedition in satellite mapping — street tour releasing soon.`;
+    toast.classList.add("is-visible");
+    clearTimeout(toast._timer);
+    toast._timer = setTimeout(() => {
+        toast.classList.remove("is-visible");
+    }, 3800);
+}
+
 function openCityModal(cityKey) {
     const city = cityData[cityKey];
     if (!city || isModalOpen) return;
+
+    if (city.isComingSoon) {
+        showUpcomingToast(city.name);
+        return;
+    }
 
     isModalOpen = true;
     isTransitioningToVideo = false;
@@ -1747,7 +1793,8 @@ function scrollCarouselToCity(cityKey) {
     const carousel = document.getElementById("s3-city-carousel");
     if (!carousel) return;
 
-    const normalizedKey = (cityKey || "").toLowerCase().replace(/\s+/g, "");
+    let normalizedKey = (cityKey || "").toLowerCase().replace(/\s+/g, "");
+    if (normalizedKey === "cario") normalizedKey = "cairo";
     const card = document.querySelector(`.s3-city-card[data-city-key="${normalizedKey}"]`) ||
                  document.querySelector(`.s3-city-card[data-city="${normalizedKey}"]`) ||
                  Array.from(document.querySelectorAll(".s3-city-card")).find(c => {
@@ -1786,7 +1833,8 @@ function scrollCarouselToCity(cityKey) {
 }
 
 function highlightCityCard(cityKey) {
-    const normalizedKey = (cityKey || "").toLowerCase().replace(/\s+/g, "");
+    let normalizedKey = (cityKey || "").toLowerCase().replace(/\s+/g, "");
+    if (normalizedKey === "cario") normalizedKey = "cairo";
     const cards = document.querySelectorAll(".s3-city-card");
 
     cards.forEach((card) => {
@@ -1954,6 +2002,14 @@ function setupCitySelectorAndCarousel() {
             updateCarouselArrows();
         }, { passive: true });
 
+        // Horizontal mouse wheel scrolling support
+        carousel.addEventListener("wheel", (e) => {
+            if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
+                e.preventDefault();
+                carousel.scrollLeft += e.deltaY;
+            }
+        }, { passive: false });
+
         setTimeout(updateCarouselArrows, 200);
         window.addEventListener("resize", updateCarouselArrows);
 
@@ -2028,6 +2084,10 @@ function setupCitySelectorAndCarousel() {
 }
 
 setupCitySelectorAndCarousel();
+
+// Expose API globally
+window.scrollCarouselToCity = scrollCarouselToCity;
+window.highlightCityCard = highlightCityCard;
 
 // open a city from ?openCity=paris
 const searchParams = new URLSearchParams(window.location.search);

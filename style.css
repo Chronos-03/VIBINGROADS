@@ -14,6 +14,8 @@
     --img-istanbul: url("city-istanbul.webp");
     --img-mumbai: url("city-mumbai.webp");
     --img-lisbon: url("city-lisbon.webp");
+    --img-seoul: url("city-seoul.webp");
+    --img-cairo: url("city-cairo.webp");
 }
 
 @media (max-width: 760px) {
@@ -1937,6 +1939,38 @@ button {
         var(--img-lisbon);
 }
 
+.s3-image-seoul {
+    background-image:
+        linear-gradient(rgba(8, 6, 5, 0.08), rgba(8, 6, 5, 0.28)),
+        var(--img-seoul);
+}
+
+.s3-image-cairo {
+    background-image:
+        linear-gradient(rgba(8, 6, 5, 0.08), rgba(8, 6, 5, 0.28)),
+        var(--img-cairo);
+}
+
+.s3-upcoming-pill {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    padding: 3px 9px;
+    background: rgba(15, 12, 10, 0.85);
+    border: 1px solid rgba(223, 189, 130, 0.5);
+    border-radius: 20px;
+    color: var(--s3-gold, #dfbd82);
+    font-size: 8px;
+    font-weight: 700;
+    letter-spacing: 1.4px;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+}
+
+.s3-enter-upcoming {
+    color: rgba(223, 189, 130, 0.65);
+}
+
 .s3-city-copy {
     display: flex;
     flex-direction: column;
@@ -3378,4 +3412,37 @@ body.city-modal-open {
     z-index: 2;
     background: radial-gradient(ellipse at center, transparent 55%, rgba(0, 0, 0, 0.42) 100%);
     pointer-events: none;
+}
+
+/* Upcoming Destination Toast */
+.s3-upcoming-toast {
+    position: fixed;
+    bottom: 32px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    z-index: 9999;
+    padding: 12px 24px;
+    background: rgba(18, 14, 12, 0.94);
+    border: 1px solid var(--s3-gold, #dfbd82);
+    border-radius: 40px;
+    color: #ffffff;
+    font-family: "Inter", sans-serif;
+    font-size: 13px;
+    letter-spacing: 0.4px;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.75), 0 0 25px rgba(223, 189, 130, 0.25);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.s3-upcoming-toast.is-visible {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}
+
+.s3-upcoming-toast .toast-dot {
+    color: var(--s3-gold, #dfbd82);
+    margin-right: 6px;
 }

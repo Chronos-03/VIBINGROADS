@@ -22,7 +22,7 @@
     <link rel="preconnect" href="https://api.mapbox.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&amp;family=Playfair+Display:ital,wght@0,400;0,600;1,400&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet">
     <link href="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=9">
+    <link rel="stylesheet" href="style.css?v=15">
     <script>
         if (window.matchMedia("(min-width: 761px) and (prefers-reduced-motion: no-preference)").matches) {
             document.documentElement.classList.add("cinematic");
@@ -327,6 +327,16 @@
                                 <span class="s3-item-city">Lisbon</span>
                                 <span class="s3-item-country">Portugal</span>
                             </button>
+                            <button type="button" class="s3-dropdown-item" role="option" data-city-key="seoul" data-city-name="Seoul">
+                                <span class="s3-item-dot"></span>
+                                <span class="s3-item-city">Seoul</span>
+                                <span class="s3-item-country">South Korea</span>
+                            </button>
+                            <button type="button" class="s3-dropdown-item" role="option" data-city-key="cairo" data-city-name="Cairo">
+                                <span class="s3-item-dot"></span>
+                                <span class="s3-item-city">Cairo</span>
+                                <span class="s3-item-country">Egypt</span>
+                            </button>
                         </div>
                     </div>
                     <span class="s3-selected-place-tag" id="s3-selected-place-tag" style="display: none;"></span>
@@ -398,6 +408,28 @@
                         <span class="s3-city-image s3-image-lisbon"></span>
                         <span class="s3-city-copy">
                             <span class="s3-city-name">Lisbon</span>
+                            <span class="s3-city-enter">
+                                ENTER
+                                <span class="s3-enter-arrow">→</span>
+                            </span>
+                        </span>
+                    </button>
+
+                    <button type="button" class="s3-city-card" data-city="Seoul" data-city-key="seoul" aria-pressed="false">
+                        <span class="s3-city-image s3-image-seoul"></span>
+                        <span class="s3-city-copy">
+                            <span class="s3-city-name">Seoul</span>
+                            <span class="s3-city-enter">
+                                ENTER
+                                <span class="s3-enter-arrow">→</span>
+                            </span>
+                        </span>
+                    </button>
+
+                    <button type="button" class="s3-city-card" data-city="Cairo" data-city-key="cairo" aria-pressed="false">
+                        <span class="s3-city-image s3-image-cairo"></span>
+                        <span class="s3-city-copy">
+                            <span class="s3-city-name">Cairo</span>
                             <span class="s3-city-enter">
                                 ENTER
                                 <span class="s3-enter-arrow">→</span>
@@ -551,6 +583,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" defer></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js" defer></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollToPlugin.min.js" defer></script>
-    <script src="script.js?v=12" defer></script>
+    <script src="script.js?v=15" defer></script>
 </body>
 </html>
