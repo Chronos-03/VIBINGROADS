@@ -135,7 +135,6 @@ if (hasGsap && hasScrollTrigger) {
             }
         });
 
-        // ---- LANDING -> FIRST STREET ----
         openingTimeline.to(".hero-bg", {
             scale: 1.34,
             ease: "none",
@@ -156,15 +155,11 @@ if (hasGsap && hasScrollTrigger) {
             ease: "power2.out"
         }, 0.06);
 
-        // Fade the whole landing shot away to reveal the street beneath it.
         openingTimeline.to(".hero", {
             autoAlpha: 0,
             duration: 0.16,
             ease: "none"
         }, 0.14);
-
-        // The incoming background keeps moving, so the dissolve reads as one
-        // continuous push forward rather than a crossfade between stills.
         openingTimeline.to(".scroll-one-bg", {
             scale: 1.46,
             ease: "none",
@@ -207,10 +202,6 @@ if (hasGsap && hasScrollTrigger) {
             ease: "power2.out"
         }, 0.2);
 
-        // ---- FIRST STREET -> NEXT STREET ----
-        // The first street is pushed through and dissolved out while the next
-        // background is already scaling up underneath it. No viewport of
-        // travel or empty space separates the two pages.
         openingTimeline.to(".scroll-one .scroll-two-header", {
             autoAlpha: 0,
             y: -24,
@@ -259,8 +250,6 @@ if (hasGsap && hasScrollTrigger) {
             ease: "none"
         }, 0.48);
 
-        // The next background moves throughout, so the scene change is a
-        // continuation of the same camera push.
         openingTimeline.to(".scroll-two-bg", {
             scale: 1.55,
             ease: "none",
@@ -311,10 +300,6 @@ if (hasGsap && hasScrollTrigger) {
             ease: "power2.out"
         }, 0.64);
 
-        // ---- SECOND STREET -> CITY SELECT ----
-        // The second street is pushed through and dissolved away, exactly
-        // like the earlier transitions. Its background keeps moving under the
-        // fade while the city background scales up from behind it.
         openingTimeline.to(".scroll-two .s2-header", {
             autoAlpha: 0,
             y: -24,
@@ -364,7 +349,6 @@ if (hasGsap && hasScrollTrigger) {
             ease: "none"
         }, 0.78);
 
-        // Incoming city shot: same slow push-in used by every scene change.
         openingTimeline.to(".scroll-three-bg", {
             scale: 1.4,
             ease: "none",
@@ -408,19 +392,17 @@ if (hasGsap && hasScrollTrigger) {
         }, 0.83);
     });
 
-    // Recalculate pin ranges once fonts/images have settled.
     window.addEventListener("load", () => ScrollTrigger.refresh());
     if (document.fonts && document.fonts.ready) {
         document.fonts.ready.then(() => ScrollTrigger.refresh());
     }
 }
 
-// In-page labels jump to the matching point of the pinned journey, so the
-// destination scene is fully composed instead of halfway through a dissolve.
 const OPENING_STAGE_PROGRESS = {
     notice: 0.32,
     explore: 0.8,
-    feel: 0.96
+    feel: 0.96,
+    choose: 0.96
 };
 
 function getOpeningTrigger() {
@@ -535,10 +517,859 @@ s2StartButtons.forEach((s2StartButton) => {
     });
 });
 
+const cityData = {
+    tokyo: {
+        name: "Tokyo",
+        coords: [139.6917, 35.6895],
+        endZoom: 15.5,
+        endPitch: 62,
+        endBearing: 28,
+        videoFile: "videos/tokyo.mp4",
+        country: "Japan",
+        tagline: "Shinjuku & Shibuya Neon Corridors"
+    },
+    paris: {
+        name: "Paris",
+        coords: [2.3522, 48.8566],
+        endZoom: 15.4,
+        endPitch: 62,
+        endBearing: -22,
+        videoFile: "videos/paris.mp4",
+        country: "France",
+        tagline: "Haussmann Boulevards & Seine Glow"
+    },
+    newyork: {
+        name: "New York",
+        coords: [-74.0060, 40.7128],
+        endZoom: 15.6,
+        endPitch: 63,
+        endBearing: -36,
+        videoFile: "videos/newyork.mp4",
+        country: "United States",
+        tagline: "Manhattan Canyons & 5th Avenue"
+    },
+    istanbul: {
+        name: "Istanbul",
+        coords: [28.9784, 41.0082],
+        endZoom: 15.2,
+        endPitch: 58,
+        endBearing: 16,
+        videoFile: "videos/istanbul.mp4",
+        country: "Turkey",
+        tagline: "Bosphorus Crossings & Historic Old City"
+    },
+    mumbai: {
+        name: "Mumbai",
+        coords: [72.8777, 19.0760],
+        endZoom: 15.3,
+        endPitch: 60,
+        endBearing: -14,
+        videoFile: "videos/mumbai.mp4",
+        country: "India",
+        tagline: "Colonial Grandeur & Coastal Roads"
+    },
+    lisbon: {
+        name: "Lisbon",
+        coords: [-9.1393, 38.7223],
+        endZoom: 15.3,
+        endPitch: 58,
+        endBearing: 24,
+        videoFile: "videos/lisbon.mp4",
+        country: "Portugal",
+        tagline: "Cobblestone Hills & Pastel Quarters"
+    }
+};
+
+// Verified official Mapbox public token
+const MAPBOX_DEFAULT_TOKEN = "pk.eyJ1IjoiZXhhbXBsZXMiLCJhIjoiY2xxeTBib3pyMGsxcTJpbXQ3bmo4YXU0ZiJ9.wvqlBMQSxTHgvAh6l9OXXw";
+
+function getActiveMapboxToken() {
+    return window.MAPBOX_ACCESS_TOKEN || localStorage.getItem("MAPBOX_ACCESS_TOKEN") || MAPBOX_DEFAULT_TOKEN;
+}
+
+// Modal State Management
+let activeMap = null;
+let isModalOpen = false;
+let isTransitioningToVideo = false;
+let mapFlightTimeout = null;
+let autoplayCheckTimer = null;
+let wasAmbientPlaying = false;
+let currentCityData = null;
+
+const cityModal = document.getElementById("city-modal");
+const cityModalBackdrop = document.getElementById("city-modal-backdrop");
+const cityModalDialog = cityModal ? cityModal.querySelector(".city-modal-dialog") : null;
+const cityModalCloseBtn = document.getElementById("city-modal-close");
+const cityModalSkipBtn = document.getElementById("city-modal-skip-btn");
+const cityModalTitle = document.getElementById("city-modal-title");
+const cityModalCountry = document.getElementById("city-modal-country");
+const cityModalCoords = document.getElementById("city-modal-coords");
+const cityModalStatusText = document.getElementById("city-modal-status-text");
+
+const cityMapStage = document.getElementById("city-modal-map-stage");
+const cityMapContainer = document.getElementById("city-mapbox-container");
+const cityMapFallback = document.getElementById("city-map-fallback");
+const fallbackActionBtn = document.getElementById("fallback-action-btn");
+const hudAltitudeLabel = document.getElementById("hud-altitude-label");
+const hudTargetName = document.getElementById("hud-target-name");
+const hudCameraZoom = document.getElementById("hud-camera-zoom");
+
+const cityVideoStage = document.getElementById("city-modal-video-stage");
+const cityVideoFrame = document.getElementById("city-video-frame");
+const cityVideo = document.getElementById("city-video");
+const cityVideoAudioBtn = document.getElementById("city-video-audio-btn");
+const cityVideoAudioLabel = document.getElementById("city-video-audio-label");
+const cityVideoPlayOverlay = document.getElementById("city-video-play-overlay");
+const cityVideoBigPlay = document.getElementById("city-video-big-play");
+const videoModeBadge = document.getElementById("video-mode-badge");
+const videoCityTag = document.getElementById("video-city-tag");
+
+function getMapboxStyle() {
+    const customToken = window.MAPBOX_ACCESS_TOKEN || localStorage.getItem("MAPBOX_ACCESS_TOKEN");
+    if (customToken && customToken.startsWith("pk.") && customToken !== MAPBOX_DEFAULT_TOKEN) {
+        return "mapbox://styles/mapbox/dark-v11";
+    }
+
+    return {
+        version: 8,
+        name: "Cinematic 3D Satellite",
+        sources: {
+            "esri-satellite": {
+                type: "raster",
+                tiles: [
+                    "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
+                ],
+                tileSize: 256,
+                maxzoom: 19
+            },
+            "openmaptiles": {
+                type: "vector",
+                url: "https://tiles.openfreemap.org/planet"
+            }
+        },
+        layers: [
+            {
+                id: "satellite-layer",
+                type: "raster",
+                source: "esri-satellite",
+                paint: {
+                    "raster-saturation": -0.05,
+                    "raster-contrast": 0.18,
+                    "raster-brightness-min": 0.05
+                }
+            },
+            {
+                id: "night-ambience",
+                type: "background",
+                paint: {
+                    "background-color": "#060913",
+                    "background-opacity": 0.22
+                }
+            },
+            {
+                id: "highways-glow",
+                type: "line",
+                source: "openmaptiles",
+                "source-layer": "transportation",
+                filter: ["in", "class", "motorway", "trunk", "primary"],
+                paint: {
+                    "line-color": "#f59e0b",
+                    "line-width": [
+                        "interpolate",
+                        ["linear"],
+                        ["zoom"],
+                        6, 1.0,
+                        11, 2.0,
+                        15, 3.8
+                    ],
+                    "line-opacity": 0.85
+                }
+            },
+            {
+                id: "add-3d-buildings",
+                source: "openmaptiles",
+                "source-layer": "building",
+                type: "fill-extrusion",
+                minzoom: 13,
+                paint: {
+                    "fill-extrusion-color": [
+                        "interpolate",
+                        ["linear"],
+                        ["get", "render_height"],
+                        0, "#1c2538",    
+                        25, "#2b3952",   
+                        60, "#485b7e",   
+                        120, "#c59a48",  
+                        220, "#dfbd82",  
+                        340, "#ffe59e"    
+                    ],
+                    "fill-extrusion-height": [
+                        "interpolate",
+                        ["linear"],
+                        ["zoom"],
+                        13, 0,
+                        14.05, ["get", "render_height"]
+                    ],
+                    "fill-extrusion-base": [
+                        "interpolate",
+                        ["linear"],
+                        ["zoom"],
+                        13, 0,
+                        14.05, ["get", "render_min_height"]
+                    ],
+                    "fill-extrusion-opacity": 0.95
+                }
+            }
+        ]
+    };
+}
+
+function showMapError(title, desc) {
+    if (cityMapFallback) {
+        cityMapFallback.style.display = "flex";
+        const titleEl = document.getElementById("fallback-title");
+        const descEl = document.getElementById("fallback-desc");
+        if (titleEl) titleEl.textContent = title;
+        if (descEl) descEl.textContent = desc;
+    }
+    updateModalStatus("SATELLITE OFFLINE");
+}
+
+function updateModalStatus(text) {
+    if (cityModalStatusText) {
+        cityModalStatusText.textContent = text;
+    }
+}
+
+function openCityModal(cityKey) {
+    const city = cityData[cityKey];
+    if (!city || isModalOpen) return;
+
+    isModalOpen = true;
+    isTransitioningToVideo = false;
+    currentCityData = city;
+
+    const ambientAudio = document.getElementById("ambient-audio");
+    if (ambientAudio) {
+        wasAmbientPlaying = !ambientAudio.paused;
+        if (wasAmbientPlaying) {
+            ambientAudio.pause();
+        }
+    }
+
+    // Populate header info
+    if (cityModalTitle) cityModalTitle.textContent = city.name;
+    if (cityModalCountry) cityModalCountry.textContent = city.country || "";
+    if (cityModalCoords) {
+        const [lng, lat] = city.coords;
+        const latStr = `${Math.abs(lat).toFixed(4)}° ${lat >= 0 ? "N" : "S"}`;
+        const lngStr = `${Math.abs(lng).toFixed(4)}° ${lng >= 0 ? "E" : "W"}`;
+        cityModalCoords.textContent = `${latStr}, ${lngStr}`;
+    }
+    if (hudTargetName) hudTargetName.textContent = `TARGET: ${city.name.toUpperCase()}`;
+    if (hudCameraZoom) hudCameraZoom.textContent = "ZOOM: 2.0";
+    if (hudAltitudeLabel) hudAltitudeLabel.textContent = "STRATOSPHERE (50 KM)";
+
+    updateModalStatus("LOCATING SATELLITE...");
+
+    // Reset stages
+    if (cityMapStage) {
+        cityMapStage.style.display = "block";
+        cityMapStage.style.opacity = "1";
+    }
+    if (cityVideoStage) {
+        cityVideoStage.style.display = "none";
+        cityVideoStage.style.opacity = "0";
+    }
+    if (cityMapFallback) cityMapFallback.style.display = "none";
+    if (cityVideoPlayOverlay) cityVideoPlayOverlay.style.display = "none";
+    if (cityModalSkipBtn) cityModalSkipBtn.style.display = "inline-flex";
+
+    // Show modal container
+    cityModal.classList.add("is-active");
+    cityModal.setAttribute("aria-hidden", "false");
+    document.body.classList.add("city-modal-open");
+
+    // GSAP Open Animation (fade + slight scale in)
+    if (typeof gsap !== "undefined") {
+        gsap.killTweensOf([cityModalBackdrop, cityModalDialog]);
+        gsap.fromTo(cityModalBackdrop, 
+            { opacity: 0 }, 
+            { opacity: 1, duration: 0.35, ease: "power2.out" }
+        );
+        gsap.fromTo(cityModalDialog, 
+            { opacity: 0, scale: 0.94, y: 15 }, 
+            { 
+                opacity: 1, 
+                scale: 1, 
+                y: 0, 
+                duration: 0.45, 
+                ease: "power3.out",
+                onComplete: () => {
+                    initCityMap(city);
+                }
+            }
+        );
+    } else {
+        cityModalBackdrop.style.opacity = "1";
+        cityModalDialog.style.opacity = "1";
+        cityModalDialog.style.transform = "scale(1)";
+        initCityMap(city);
+    }
+}
+
+function initCityMap(city) {
+    if (!cityModal || !cityModal.classList.contains("is-active")) return;
+
+    const token = getActiveMapboxToken();
+    const isMapboxAvailable = typeof mapboxgl !== "undefined" && (typeof mapboxgl.supported === "function" ? mapboxgl.supported() : true);
+
+    if (!isMapboxAvailable) {
+        showMapError("WebGL Unsupported", "Hardware acceleration / WebGL is required for 3D satellite visualization.");
+        return;
+    }
+
+    if (!token || !token.startsWith("pk.")) {
+        showMapError("Mapbox Access Token Missing", "Please provide a valid Mapbox Public Access Token (starts with 'pk.') to initialize 3D cities.");
+        return;
+    }
+
+    try {
+        mapboxgl.accessToken = token;
+        const style = getMapboxStyle();
+        const startZoom = 2.0;
+        const targetZoom = city.endZoom || 15.4;
+        const targetPitch = city.endPitch || 62;
+        const targetBearing = city.endBearing || -25;
+
+        if (cityMapContainer) {
+            cityMapContainer.innerHTML = "";
+        }
+
+        const map = new mapboxgl.Map({
+            container: "city-mapbox-container",
+            style: style,
+            center: city.coords,
+            zoom: startZoom,
+            pitch: 0,
+            bearing: 0,
+            preserveDrawingBuffer: true,
+            attributionControl: false,
+            antialias: true
+        });
+
+        activeMap = map;
+
+        let hasFlightStarted = false;
+        let isFlightCompleted = false;
+
+        const onMapReady = () => {
+            if (!activeMap) return;
+
+            // 1. Vibrant Atmospheric Space Fog & Horizon Glow
+            if (typeof map.setFog === "function") {
+                map.setFog({
+                    range: [0.5, 10],
+                    color: "#121d30",
+                    "horizon-blend": 0.3,
+                    "high-color": "#091425",
+                    "space-color": "#01040b",
+                    "star-intensity": 0.9
+                });
+            }
+
+            // 2. Beautiful Palette: Luminous Sapphire Water, Emerald Parks, Glowing Golden Arteries
+            try {
+                if (map.getLayer("background")) {
+                    map.setPaintProperty("background", "background-color", "#0c111d");
+                }
+                if (map.getLayer("water")) {
+                    map.setPaintProperty("water", "fill-color", "#0f3254");
+                    map.setPaintProperty("water", "fill-opacity", 0.95);
+                }
+                if (map.getLayer("waterway")) {
+                    map.setPaintProperty("waterway", "line-color", "#1a4f7e");
+                    map.setPaintProperty("waterway", "line-width", 2);
+                }
+                if (map.getLayer("landuse_park")) {
+                    map.setPaintProperty("landuse_park", "fill-color", "#0f2e21");
+                    map.setPaintProperty("landuse_park", "fill-opacity", 0.85);
+                }
+                if (map.getLayer("landcover_wood")) {
+                    map.setPaintProperty("landcover_wood", "fill-color", "#0c2419");
+                    map.setPaintProperty("landcover_wood", "fill-opacity", 0.8);
+                }
+                if (map.getLayer("highway_motorway_inner")) {
+                    map.setPaintProperty("highway_motorway_inner", "line-color", "#dfbd82");
+                    map.setPaintProperty("highway_motorway_inner", "line-width", 2.4);
+                }
+                if (map.getLayer("highway_major_inner")) {
+                    map.setPaintProperty("highway_major_inner", "line-color", "#f59e0b");
+                    map.setPaintProperty("highway_major_inner", "line-width", 1.8);
+                }
+                if (map.getLayer("highway_minor")) {
+                    map.setPaintProperty("highway_minor", "line-color", "#28394e");
+                }
+            } catch (err) {}
+
+            // 3. Insert 3D Extruded Buildings Layer with Warm Gold and Architectural Facades
+            const currentStyle = map.getStyle();
+            if (currentStyle && currentStyle.layers) {
+                let labelLayerId;
+                for (let i = 0; i < currentStyle.layers.length; i++) {
+                    if (currentStyle.layers[i].type === "symbol" && currentStyle.layers[i].layout && currentStyle.layers[i].layout["text-field"]) {
+                        labelLayerId = currentStyle.layers[i].id;
+                        break;
+                    }
+                }
+
+                const isMapboxComposite = !!(currentStyle.sources && currentStyle.sources["composite"]);
+                const buildingSource = isMapboxComposite ? "composite" : "openmaptiles";
+                const heightProp = isMapboxComposite ? "height" : "render_height";
+                const minHeightProp = isMapboxComposite ? "min_height" : "render_min_height";
+                const filterExpr = isMapboxComposite ? ["==", "extrude", "true"] : ["has", "render_height"];
+
+                if (!map.getLayer("add-3d-buildings")) {
+                    map.addLayer(
+                        {
+                            id: "add-3d-buildings",
+                            source: buildingSource,
+                            "source-layer": "building",
+                            filter: filterExpr,
+                            type: "fill-extrusion",
+                            minzoom: 13,
+                            paint: {
+                                "fill-extrusion-color": [
+                                    "interpolate",
+                                    ["linear"],
+                                    ["get", heightProp],
+                                    0, "#1c2538",     // architectural steel base
+                                    25, "#2b3952",    // illuminated facade
+                                    60, "#485b7e",    // architectural glass
+                                    120, "#c59a48",   // warm bronze
+                                    220, "#dfbd82",   // luminous gold
+                                    340, "#ffe59e"    // penthouse gold beacon
+                                ],
+                                "fill-extrusion-height": [
+                                    "interpolate",
+                                    ["linear"],
+                                    ["zoom"],
+                                    13, 0,
+                                    14.05, ["get", heightProp]
+                                ],
+                                "fill-extrusion-base": [
+                                    "interpolate",
+                                    ["linear"],
+                                    ["zoom"],
+                                    13, 0,
+                                    14.05, ["get", minHeightProp]
+                                ],
+                                "fill-extrusion-opacity": 0.95
+                            }
+                        },
+                        labelLayerId
+                    );
+                }
+            }
+
+            startCinematicFlight();
+        };
+
+        const startCinematicFlight = () => {
+            if (hasFlightStarted || !activeMap) return;
+            hasFlightStarted = true;
+
+            map.resize();
+            updateModalStatus("DESCENDING TO CITY…");
+            if (hudAltitudeLabel) hudAltitudeLabel.textContent = "STRATOSPHERE (50 KM)";
+
+            // 2. Camera smoothly flies down while tilting into 3D perspective (~60° pitch)
+            // Duration ~5.2 seconds (cinematic ~4-6s)
+            map.flyTo({
+                center: city.coords,
+                zoom: targetZoom,
+                pitch: targetPitch,
+                bearing: targetBearing,
+                duration: 5200,
+                speed: 0.85,
+                curve: 1.4,
+                essential: true,
+                easing: (t) => t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t
+            });
+        };
+
+        if (map.isStyleLoaded()) {
+            onMapReady();
+        } else {
+            map.once("style.load", onMapReady);
+        }
+
+        // Live telemetry updater during flight (continuously updates altitude text)
+        const updateTelemetry = () => {
+            if (!activeMap) return;
+            const z = map.getZoom();
+            if (hudCameraZoom) hudCameraZoom.textContent = `ZOOM: ${z.toFixed(1)}`;
+
+            // Exponential altitude mapping from 50 km down to city level (250 m)
+            const progress = Math.min(1, Math.max(0, (z - 2.0) / (targetZoom - 2.0)));
+            const altKm = 50 * Math.pow(0.005, progress);
+
+            let altText = "";
+            let phase = "STRATOSPHERE";
+            if (progress >= 0.92) {
+                phase = "CITY LEVEL";
+                altText = `${Math.round(altKm * 1000)} M`;
+            } else if (progress >= 0.65) {
+                phase = "APPROACH";
+                altText = `${altKm.toFixed(1)} KM`;
+            } else if (progress >= 0.3) {
+                phase = "DESCENT";
+                altText = `${altKm.toFixed(1)} KM`;
+            } else {
+                phase = "STRATOSPHERE";
+                altText = `${altKm.toFixed(1)} KM`;
+            }
+
+            if (hudAltitudeLabel && !isFlightCompleted) {
+                hudAltitudeLabel.textContent = `${phase} (${altText})`;
+            }
+        };
+
+        map.on("move", updateTelemetry);
+        map.on("render", updateTelemetry);
+
+        // When 3D camera flight finishes
+        map.once("moveend", () => {
+            if (!hasFlightStarted) return;
+            isFlightCompleted = true;
+
+            updateModalStatus("3D SKYLINE ACTIVE • ENTERING STREET LEVEL");
+            if (hudAltitudeLabel) hudAltitudeLabel.textContent = "CITY LEVEL (GROUND)";
+
+            // Hold on the 3D skyline before transitioning to street video
+            setTimeout(() => {
+                if (!isTransitioningToVideo && isModalOpen) {
+                    transitionToVideo(city);
+                }
+            }, 3200);
+        });
+
+        map.on("error", (e) => {
+            console.warn("Mapbox error:", e);
+            if (e && e.error && (e.error.status === 401 || e.error.status === 403)) {
+                showMapError("Mapbox Authorization Failed", "The provided Mapbox Access Token is invalid or unauthorized.");
+            }
+        });
+
+        // Safety fallback timer if moveend takes too long
+        mapFlightTimeout = setTimeout(() => {
+            if (!isTransitioningToVideo) {
+                transitionToVideo(city);
+            }
+        }, 9500);
+
+    } catch (err) {
+        console.error("Map initialization failed:", err);
+        showMapError("Mapbox Initialization Error", err.message || "Failed to load 3D map engine.");
+    }
+}
+
+function transitionToVideo(city) {
+    if (isTransitioningToVideo) return;
+    isTransitioningToVideo = true;
+
+    if (mapFlightTimeout) {
+        clearTimeout(mapFlightTimeout);
+        mapFlightTimeout = null;
+    }
+
+    if (cityModalSkipBtn) {
+        cityModalSkipBtn.style.display = "none";
+    }
+
+    updateModalStatus("STREET IMMERSION ACTIVE");
+
+    // GSAP smooth transition from map to video
+    if (typeof gsap !== "undefined") {
+        const tl = gsap.timeline();
+        tl.to(cityMapStage, {
+            opacity: 0,
+            duration: 0.7,
+            ease: "power2.inOut",
+            onComplete: () => {
+                if (cityMapStage) cityMapStage.style.display = "none";
+            }
+        });
+
+        tl.fromTo(cityVideoStage, 
+            { opacity: 0, scale: 1.03 }, 
+            {
+                opacity: 1,
+                scale: 1,
+                duration: 0.7,
+                ease: "power2.out",
+                onStart: () => {
+                    if (cityVideoStage) cityVideoStage.style.display = "block";
+                    startCityVideo(city);
+                }
+            },
+            "-=0.25"
+        );
+    } else {
+        if (cityMapStage) cityMapStage.style.display = "none";
+        if (cityVideoStage) {
+            cityVideoStage.style.display = "block";
+            cityVideoStage.style.opacity = "1";
+        }
+        startCityVideo(city);
+    }
+}
+
+function startCityVideo(city) {
+    if (!cityVideo) return;
+
+    // Update Mode & City tags in HUD
+    const isWalking = (typeof s2SelectedMode !== "undefined" && s2SelectedMode === "walking");
+    if (videoModeBadge) {
+        videoModeBadge.textContent = isWalking ? "WALKING TOUR" : "DRIVING TOUR";
+    }
+    if (videoCityTag) {
+        videoCityTag.textContent = `${city.name}, ${city.country || ""}`;
+    }
+
+    // Determine local MP4 file path
+    const videoSrc = city.videoFile || `videos/${(city.name || "").toLowerCase().replace(/\s+/g, "")}.mp4`;
+
+    // Only set src if not already loaded
+    if (cityVideo.getAttribute("src") !== videoSrc) {
+        cityVideo.src = videoSrc;
+        cityVideo.load();
+    }
+
+    // Default to muted so browser allows seamless immediate autoplay
+    cityVideo.muted = true;
+    updateAudioButtonUI(false);
+
+    const playPromise = cityVideo.play();
+    if (playPromise !== undefined) {
+        playPromise.then(() => {
+            hidePlayOverlay();
+        }).catch((err) => {
+            console.warn("Autoplay blocked by browser policy, showing play overlay:", err);
+            showPlayOverlay();
+        });
+    }
+}
+
+function toggleCityVideoAudio() {
+    if (!cityVideo) return;
+    cityVideo.muted = !cityVideo.muted;
+    updateAudioButtonUI(!cityVideo.muted);
+}
+
+function updateAudioButtonUI(isUnmuted) {
+    if (!cityVideoAudioBtn) return;
+    const mutedIcon = cityVideoAudioBtn.querySelector(".audio-muted-icon");
+    const unmutedIcon = cityVideoAudioBtn.querySelector(".audio-unmuted-icon");
+
+    cityVideoAudioBtn.classList.toggle("is-unmuted", isUnmuted);
+    if (mutedIcon) mutedIcon.style.display = isUnmuted ? "none" : "block";
+    if (unmutedIcon) unmutedIcon.style.display = isUnmuted ? "block" : "none";
+    if (cityVideoAudioLabel) {
+        cityVideoAudioLabel.textContent = isUnmuted ? "MUTE AUDIO" : "UNMUTE AUDIO";
+    }
+}
+
+if (cityVideoAudioBtn) {
+    cityVideoAudioBtn.addEventListener("click", toggleCityVideoAudio);
+}
+
+if (cityVideoBigPlay) {
+    cityVideoBigPlay.addEventListener("click", () => {
+        if (cityVideo) {
+            cityVideo.play().then(() => {
+                hidePlayOverlay();
+            }).catch(() => {});
+        }
+    });
+}
+
+function showPlayOverlay() {
+    if (cityVideoPlayOverlay) {
+        cityVideoPlayOverlay.style.display = "flex";
+        if (typeof gsap !== "undefined") {
+            gsap.fromTo(cityVideoPlayOverlay, { opacity: 0 }, { opacity: 1, duration: 0.3 });
+        }
+    }
+}
+
+function hidePlayOverlay() {
+    if (cityVideoPlayOverlay) {
+        cityVideoPlayOverlay.style.display = "none";
+    }
+}
+
+function closeCityModal() {
+    if (!isModalOpen) return;
+    isModalOpen = false;
+
+    if (mapFlightTimeout) {
+        clearTimeout(mapFlightTimeout);
+        mapFlightTimeout = null;
+    }
+    if (autoplayCheckTimer) {
+        clearTimeout(autoplayCheckTimer);
+        autoplayCheckTimer = null;
+    }
+
+    // 1. Pause and reset local video completely (halt sound & free decoding memory)
+    if (cityVideo) {
+        cityVideo.pause();
+        cityVideo.removeAttribute("src");
+        cityVideo.load();
+    }
+    hidePlayOverlay();
+
+    // 2. Destroy Mapbox instance cleanly
+    if (activeMap) {
+        try {
+            activeMap.remove();
+        } catch (e) {}
+        activeMap = null;
+    }
+    if (cityMapContainer) {
+        cityMapContainer.innerHTML = "";
+    }
+
+    // 3. GSAP Close Animation
+    if (typeof gsap !== "undefined") {
+        gsap.killTweensOf([cityModalDialog, cityModalBackdrop]);
+        gsap.to(cityModalDialog, {
+            opacity: 0,
+            scale: 0.94,
+            y: 12,
+            duration: 0.3,
+            ease: "power2.in"
+        });
+        gsap.to(cityModalBackdrop, {
+            opacity: 0,
+            duration: 0.3,
+            ease: "power2.in",
+            onComplete: () => {
+                cityModal.classList.remove("is-active");
+                cityModal.setAttribute("aria-hidden", "true");
+                document.body.classList.remove("city-modal-open");
+
+                // Reset stage states
+                if (cityMapStage) {
+                    cityMapStage.style.display = "block";
+                    cityMapStage.style.opacity = "1";
+                }
+                if (cityVideoStage) {
+                    cityVideoStage.style.display = "none";
+                    cityVideoStage.style.opacity = "0";
+                }
+                hidePlayOverlay();
+            }
+        });
+    } else {
+        cityModal.classList.remove("is-active");
+        cityModal.setAttribute("aria-hidden", "true");
+        document.body.classList.remove("city-modal-open");
+        if (cityMapStage) {
+            cityMapStage.style.display = "block";
+            cityMapStage.style.opacity = "1";
+        }
+        if (cityVideoStage) {
+            cityVideoStage.style.display = "none";
+            cityVideoStage.style.opacity = "0";
+        }
+        hidePlayOverlay();
+    }
+
+    // Resume ambient background audio if it was active before opening
+    const ambientAudio = document.getElementById("ambient-audio");
+    if (ambientAudio && wasAmbientPlaying) {
+        ambientAudio.play().catch(() => {});
+        wasAmbientPlaying = false;
+    }
+}
+
+// Attach Event Listeners
+if (cityModalCloseBtn) {
+    cityModalCloseBtn.addEventListener("click", closeCityModal);
+}
+
+if (cityModalBackdrop) {
+    cityModalBackdrop.addEventListener("click", closeCityModal);
+}
+
+if (cityModalSkipBtn) {
+    cityModalSkipBtn.addEventListener("click", () => {
+        if (currentCityData) {
+            transitionToVideo(currentCityData);
+        }
+    });
+}
+
+if (fallbackActionBtn) {
+    fallbackActionBtn.addEventListener("click", () => {
+        if (currentCityData) {
+            transitionToVideo(currentCityData);
+        }
+    });
+}
+
+const fallbackSaveBtn = document.getElementById("fallback-save-btn");
+const mapboxTokenInput = document.getElementById("mapbox-token-input");
+if (fallbackSaveBtn && mapboxTokenInput) {
+    fallbackSaveBtn.addEventListener("click", () => {
+        const val = mapboxTokenInput.value.trim();
+        if (val.startsWith("pk.")) {
+            localStorage.setItem("MAPBOX_ACCESS_TOKEN", val);
+            window.MAPBOX_ACCESS_TOKEN = val;
+            if (cityMapFallback) cityMapFallback.style.display = "none";
+            if (currentCityData) {
+                initCityMap(currentCityData);
+            }
+        } else {
+            alert("Please enter a valid Mapbox public token starting with 'pk.'");
+        }
+    });
+}
+
+if (cityVideoBigPlay) {
+    cityVideoBigPlay.addEventListener("click", () => {
+        hidePlayOverlay();
+        if (activeYtPlayer && typeof activeYtPlayer.playVideo === "function") {
+            try { activeYtPlayer.playVideo(); } catch (e) {}
+        }
+        sendIframeCommand("playVideo");
+    });
+}
+
+window.addEventListener("message", (e) => {
+    try {
+        const data = typeof e.data === "string" ? JSON.parse(e.data) : e.data;
+        if (data && data.event === "onStateChange" && data.info === 1) {
+            hidePlayOverlay();
+        }
+    } catch (err) {}
+});
+
+document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && isModalOpen) {
+        closeCityModal();
+    }
+});
+
+// City Cards Click Handling
 const s3CityCards = document.querySelectorAll(".s3-city-card");
 
 s3CityCards.forEach((card) => {
-    card.addEventListener("click", () => {
+    card.addEventListener("click", (e) => {
+        e.preventDefault();
+
         s3CityCards.forEach((item) => {
             item.classList.remove("s3-city-selected");
             item.setAttribute("aria-pressed", "false");
@@ -546,8 +1377,32 @@ s3CityCards.forEach((card) => {
 
         card.classList.add("s3-city-selected");
         card.setAttribute("aria-pressed", "true");
+
+        // Read selected city key from data-city
+        const rawCity = card.getAttribute("data-city") || "";
+        const cityKey = rawCity.toLowerCase().replace(/\s+/g, "");
+
+        openCityModal(cityKey);
     });
 });
+
+// Auto-open city modal if requested via URL param (e.g. ?openCity=paris)
+const searchParams = new URLSearchParams(window.location.search);
+const queryCity = searchParams.get("openCity");
+if (queryCity && cityData[queryCity.toLowerCase()]) {
+    const triggerAutoOpen = () => {
+        setTimeout(() => {
+            openCityModal(queryCity.toLowerCase());
+        }, 100);
+    };
+
+    if (document.readyState === "complete" || document.readyState === "interactive") {
+        triggerAutoOpen();
+    } else {
+        window.addEventListener("DOMContentLoaded", triggerAutoOpen);
+        window.addEventListener("load", triggerAutoOpen);
+    }
+}
 
 function updateLocalClock() {
     const clocks = document.querySelectorAll("#s2-local-clock, #s3-local-clock, #local-clock");
