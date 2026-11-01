@@ -135,9 +135,9 @@
                 <span class="scroll-chevron">⌄</span>
             </a>
             <div class="sound-pill">
-                <button type="button" class="s2-sound-control" id="sound-toggle" aria-pressed="false">
+                <button type="button" class="s2-sound-control s2-sound-active" id="sound-toggle" aria-pressed="true">
                     <span class="s2-sound-icon">♫</span>
-                    <span class="s2-sound-label" id="sound-label">AMBIENT SOUND OFF</span>
+                    <span class="s2-sound-label" id="sound-label">AMBIENT SOUND ON</span>
                     <span class="s2-switch">
                         <span class="s2-switch-knob"></span>
                     </span>
@@ -237,9 +237,9 @@
             <small>LOCAL TIME</small>
         </div>
     </div>
-    <button type="button" class="s2-sound-control" id="s2-sound-toggle" aria-pressed="false">
+    <button type="button" class="s2-sound-control s2-sound-active" id="s2-sound-toggle" aria-pressed="true">
         <span class="s2-sound-icon">♫</span>
-        <span class="s2-sound-label" id="s2-sound-label">AMBIENT SOUND OFF</span>
+        <span class="s2-sound-label" id="s2-sound-label">AMBIENT SOUND ON</span>
 
         <span class="s2-switch">
             <span class="s2-switch-knob"></span>
@@ -275,64 +275,138 @@
 
         <div class="s3-content">
 
-            <div class="s3-intro">
-                <h2>Choose your city.</h2>
-                <p>Phantom Roads awaits beyond the streets you know.</p>
+            <div class="s3-top-row">
+                <div class="s3-intro">
+                    <h2>Choose your city.</h2>
+                    <p>Phantom Roads awaits beyond the streets you know.</p>
+                </div>
+
+                <div class="s3-selector-wrap">
+                    <div class="s3-place-dropdown" id="s3-place-dropdown">
+                        <button type="button" 
+                                class="s3-dropdown-btn" 
+                                id="s3-dropdown-btn" 
+                                aria-haspopup="listbox" 
+                                aria-expanded="false" 
+                                aria-label="Choose a destination">
+                            <span class="s3-dropdown-pin">◎</span>
+                            <span class="s3-dropdown-title" id="s3-dropdown-title">Choose a place</span>
+                            <svg class="s3-dropdown-arrow" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="6 9 12 15 18 9"></polyline>
+                            </svg>
+                        </button>
+
+                        <div class="s3-dropdown-menu" id="s3-dropdown-menu" role="listbox" aria-label="Destinations">
+                            <button type="button" class="s3-dropdown-item" role="option" data-city-key="tokyo" data-city-name="Tokyo">
+                                <span class="s3-item-dot"></span>
+                                <span class="s3-item-city">Tokyo</span>
+                                <span class="s3-item-country">Japan</span>
+                            </button>
+                            <button type="button" class="s3-dropdown-item" role="option" data-city-key="paris" data-city-name="Paris">
+                                <span class="s3-item-dot"></span>
+                                <span class="s3-item-city">Paris</span>
+                                <span class="s3-item-country">France</span>
+                            </button>
+                            <button type="button" class="s3-dropdown-item" role="option" data-city-key="newyork" data-city-name="New York">
+                                <span class="s3-item-dot"></span>
+                                <span class="s3-item-city">New York</span>
+                                <span class="s3-item-country">United States</span>
+                            </button>
+                            <button type="button" class="s3-dropdown-item" role="option" data-city-key="istanbul" data-city-name="Istanbul">
+                                <span class="s3-item-dot"></span>
+                                <span class="s3-item-city">Istanbul</span>
+                                <span class="s3-item-country">Turkey</span>
+                            </button>
+                            <button type="button" class="s3-dropdown-item" role="option" data-city-key="mumbai" data-city-name="Mumbai">
+                                <span class="s3-item-dot"></span>
+                                <span class="s3-item-city">Mumbai</span>
+                                <span class="s3-item-country">India</span>
+                            </button>
+                            <button type="button" class="s3-dropdown-item" role="option" data-city-key="lisbon" data-city-name="Lisbon">
+                                <span class="s3-item-dot"></span>
+                                <span class="s3-item-city">Lisbon</span>
+                                <span class="s3-item-country">Portugal</span>
+                            </button>
+                        </div>
+                    </div>
+                    <span class="s3-selected-place-tag" id="s3-selected-place-tag" style="display: none;"></span>
+                </div>
             </div>
 
-            <div class="s3-city-grid">
+            <div class="s3-carousel-wrapper">
+                <button type="button" class="s3-carousel-arrow s3-carousel-prev is-hidden" id="s3-carousel-prev" aria-label="Scroll left" title="Previous destination">
+                    ‹
+                </button>
+                <div class="s3-city-grid" id="s3-city-carousel" tabindex="0" role="region" aria-label="City destinations carousel">
 
-                <button type="button" class="s3-city-card" data-city="Tokyo" aria-pressed="false">
-                    <span class="s3-city-image s3-image-tokyo"></span>
-                    <span class="s3-city-copy">
-                        <span class="s3-city-name">Tokyo</span>
-                        <span class="s3-city-enter">
-                            ENTER
-                            <span class="s3-enter-arrow">→</span>
+                    <button type="button" class="s3-city-card" data-city="Tokyo" data-city-key="tokyo" aria-pressed="false">
+                        <span class="s3-city-image s3-image-tokyo"></span>
+                        <span class="s3-city-copy">
+                            <span class="s3-city-name">Tokyo</span>
+                            <span class="s3-city-enter">
+                                ENTER
+                                <span class="s3-enter-arrow">→</span>
+                            </span>
                         </span>
-                    </span>
-                </button>
+                    </button>
 
-                <button type="button" class="s3-city-card" data-city="Paris" aria-pressed="false">
-                    <span class="s3-city-image s3-image-paris"></span>
-                    <span class="s3-city-copy">
-                        <span class="s3-city-name">Paris</span>
-                        <span class="s3-city-enter">
-                            ENTER
-                            <span class="s3-enter-arrow">→</span>
+                    <button type="button" class="s3-city-card" data-city="Paris" data-city-key="paris" aria-pressed="false">
+                        <span class="s3-city-image s3-image-paris"></span>
+                        <span class="s3-city-copy">
+                            <span class="s3-city-name">Paris</span>
+                            <span class="s3-city-enter">
+                                ENTER
+                                <span class="s3-enter-arrow">→</span>
+                            </span>
                         </span>
-                    </span>
-                </button>
+                    </button>
 
-                <button type="button" class="s3-city-card" data-city="New York" aria-pressed="false">
-                    <span class="s3-city-image s3-image-newyork"></span>
-                    <span class="s3-city-copy">
-                        <span class="s3-city-name">New York</span>
-                        <span class="s3-city-enter">
-                            ENTER
-                            <span class="s3-enter-arrow">→</span>
+                    <button type="button" class="s3-city-card" data-city="New York" data-city-key="newyork" aria-pressed="false">
+                        <span class="s3-city-image s3-image-newyork"></span>
+                        <span class="s3-city-copy">
+                            <span class="s3-city-name">New York</span>
+                            <span class="s3-city-enter">
+                                ENTER
+                                <span class="s3-enter-arrow">→</span>
+                            </span>
                         </span>
-                    </span>
-                </button>
-                <button type="button" class="s3-city-card" data-city="Istanbul" aria-pressed="false">
-                    <span class="s3-city-image s3-image-istanbul"></span>
-                    <span class="s3-city-copy">
-                        <span class="s3-city-name">Istanbul</span>
-                        <span class="s3-city-enter">
-                            ENTER
-                            <span class="s3-enter-arrow">→</span>
+                    </button>
+
+                    <button type="button" class="s3-city-card" data-city="Istanbul" data-city-key="istanbul" aria-pressed="false">
+                        <span class="s3-city-image s3-image-istanbul"></span>
+                        <span class="s3-city-copy">
+                            <span class="s3-city-name">Istanbul</span>
+                            <span class="s3-city-enter">
+                                ENTER
+                                <span class="s3-enter-arrow">→</span>
+                            </span>
                         </span>
-                    </span>
-                </button>
-                <button type="button" class="s3-city-card" data-city="Mumbai" aria-pressed="false">
-                    <span class="s3-city-image s3-image-mumbai"></span>
-                    <span class="s3-city-copy">
-                        <span class="s3-city-name">Mumbai</span>
-                        <span class="s3-city-enter">
-                            ENTER
-                            <span class="s3-enter-arrow">→</span>
+                    </button>
+
+                    <button type="button" class="s3-city-card" data-city="Mumbai" data-city-key="mumbai" aria-pressed="false">
+                        <span class="s3-city-image s3-image-mumbai"></span>
+                        <span class="s3-city-copy">
+                            <span class="s3-city-name">Mumbai</span>
+                            <span class="s3-city-enter">
+                                ENTER
+                                <span class="s3-enter-arrow">→</span>
+                            </span>
                         </span>
-                    </span>
+                    </button>
+
+                    <button type="button" class="s3-city-card" data-city="Lisbon" data-city-key="lisbon" aria-pressed="false">
+                        <span class="s3-city-image s3-image-lisbon"></span>
+                        <span class="s3-city-copy">
+                            <span class="s3-city-name">Lisbon</span>
+                            <span class="s3-city-enter">
+                                ENTER
+                                <span class="s3-enter-arrow">→</span>
+                            </span>
+                        </span>
+                    </button>
+                </div>
+                <button type="button" class="s3-carousel-arrow s3-carousel-next" id="s3-carousel-next" aria-label="Scroll right" title="Next destination">
+                    ›
                 </button>
             </div>
         </div>
@@ -350,9 +424,9 @@
                     <span class="s3-globe">◎</span>
                     GLOBAL
                 </span>
-                <button type="button" class="s2-sound-control s3-sound-control" id="s3-sound-toggle" aria-pressed="false">
+                <button type="button" class="s2-sound-control s3-sound-control s2-sound-active" id="s3-sound-toggle" aria-pressed="true">
                     <span class="s2-sound-icon">♫</span>
-                    <span class="s2-sound-label" id="s3-sound-label">AMBIENT SOUND OFF</span>
+                    <span class="s2-sound-label" id="s3-sound-label">AMBIENT SOUND ON</span>
                     <span class="s2-switch">
                         <span class="s2-switch-knob"></span>
                     </span>
@@ -381,17 +455,17 @@
                     <button type="button" class="city-modal-skip-btn" id="city-modal-skip-btn" title="Skip directly to street video">
                         <span>STREET VIEW</span> →
                     </button>
-                    <button type="button" class="city-video-audio-toggle" id="city-video-audio-btn" aria-label="Toggle Street Sound" title="Toggle Audio (M)">
-                        <svg class="audio-icon audio-muted-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <button type="button" class="city-video-audio-toggle is-unmuted" id="city-video-audio-btn" aria-label="Toggle Street Sound" title="Toggle Audio (M)">
+                        <svg class="audio-icon audio-muted-icon" style="display: none;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
                             <line x1="23" y1="9" x2="17" y2="15"></line>
                             <line x1="17" y1="9" x2="23" y2="15"></line>
                         </svg>
-                        <svg class="audio-icon audio-unmuted-icon" style="display: none;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <svg class="audio-icon audio-unmuted-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
                             <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
                         </svg>
-                        <span id="city-video-audio-label">UNMUTE AUDIO</span>
+                        <span id="city-video-audio-label">MUTE AUDIO</span>
                     </button>
                     <button type="button" class="city-modal-fs-btn" id="city-modal-fs-btn" aria-label="Toggle Fullscreen" title="Toggle Fullscreen (F)">
                         <svg class="fs-icon fs-expand-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
@@ -445,7 +519,7 @@
                 </div>
                 <div class="city-modal-video-stage" id="city-modal-video-stage" style="display: none; opacity: 0;">
                     <div class="city-video-frame" id="city-video-frame">
-                        <video id="city-video" class="city-video" muted autoplay loop playsinline preload="auto"></video>
+                        <video id="city-video" class="city-video" autoplay loop playsinline preload="auto"></video>
                     </div>
                     <div class="city-video-play-overlay" id="city-video-play-overlay" style="display: none;">
                         <button type="button" class="city-video-big-play" id="city-video-big-play" aria-label="Play street tour">
@@ -469,13 +543,14 @@
             </div>
         </div>
     </div>
-    <audio id="ambient-audio" loop preload="none">
-        <source src="https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3?filename=lofi-chill-medium-version-159456.mp3" type="audio/mpeg">
+    <audio id="ambient-audio" loop preload="auto">
+        <source src="ambient.mp3" type="audio/mpeg">
+        <source src="https://cdn.pixabay.com/audio/2022/05/27/audio_1808fbf07a.mp3" type="audio/mpeg">
     </audio>
     <script src="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js" defer></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" defer></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js" defer></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollToPlugin.min.js" defer></script>
-    <script src="script.js?v=9" defer></script>
+    <script src="script.js?v=12" defer></script>
 </body>
 </html>

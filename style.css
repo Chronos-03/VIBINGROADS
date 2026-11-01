@@ -13,6 +13,7 @@
     --img-newyork: url("city-newyork.webp");
     --img-istanbul: url("city-istanbul.webp");
     --img-mumbai: url("city-mumbai.webp");
+    --img-lisbon: url("city-lisbon.webp");
 }
 
 @media (max-width: 760px) {
@@ -1504,10 +1505,20 @@ button {
     justify-content: flex-start;
 }
 
-.s3-intro {
-    max-width: 760px;
+/* S3 Top Header Row: Title & Selector */
+.s3-top-row {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 24px;
+    margin-bottom: clamp(24px, 4.2vh, 48px);
+    width: 100%;
+}
 
-    margin-bottom: clamp(28px, 5.2vh, 58px);
+.s3-top-row .s3-intro {
+    max-width: 680px;
+    margin-bottom: 0;
+    flex: 1;
 }
 
 .s3-intro h2 {
@@ -1536,16 +1547,265 @@ button {
     text-shadow: 0 2px 18px rgba(0, 0, 0, 0.55);
 }
 
-.s3-city-grid {
-    display: grid;
-    grid-template-columns: repeat(5, minmax(0, 1fr));
-    gap: clamp(10px, 1.55vw, 22px);
+/* S3 Place Selector Container */
+.s3-selector-wrap {
+    display: inline-flex;
+    align-items: center;
+    gap: 14px;
+    flex-shrink: 0;
+    position: relative;
+    padding-bottom: 6px;
+}
 
+.s3-place-dropdown {
+    position: relative;
+}
+
+/* Compact Glass Trigger Button */
+.s3-dropdown-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 18px;
+    background: rgba(18, 14, 12, 0.76);
+    border: 1px solid rgba(223, 189, 130, 0.38);
+    border-radius: 30px;
+    color: var(--s3-cream, #f5f0e8);
+    font-family: "Inter", sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.6px;
+    cursor: pointer;
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45), 0 0 15px rgba(223, 189, 130, 0.1);
+    transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+    user-select: none;
+}
+
+.s3-dropdown-btn:hover {
+    background: rgba(26, 20, 16, 0.9);
+    border-color: var(--s3-gold, #dfbd82);
+    color: #ffffff;
+    transform: translateY(-1px);
+    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.55), 0 0 20px rgba(223, 189, 130, 0.25);
+}
+
+.s3-dropdown-btn:focus-visible {
+    outline: 2px solid var(--s3-gold, #dfbd82);
+    outline-offset: 2px;
+}
+
+.s3-place-dropdown.is-open .s3-dropdown-btn {
+    border-color: var(--s3-gold, #dfbd82);
+    background: rgba(30, 22, 17, 0.94);
+    box-shadow: 0 0 0 1px var(--s3-gold, #dfbd82), 0 10px 30px rgba(0, 0, 0, 0.6);
+}
+
+.s3-dropdown-pin {
+    color: var(--s3-gold, #dfbd82);
+    font-size: 14px;
+    line-height: 1;
+}
+
+.s3-dropdown-arrow {
+    stroke: var(--s3-gold, #dfbd82);
+    transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.s3-place-dropdown.is-open .s3-dropdown-arrow {
+    transform: rotate(180deg);
+}
+
+/* Selected Place Tag next to button: [ Choose a place ▾ ]   Paris */
+.s3-selected-place-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 15px;
+    background: rgba(223, 189, 130, 0.14);
+    border: 1px solid rgba(223, 189, 130, 0.45);
+    border-radius: 20px;
+    color: var(--s3-gold, #dfbd82);
+    font-family: "Playfair Display", serif;
+    font-size: 14px;
+    letter-spacing: 0.5px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35), 0 0 12px rgba(223, 189, 130, 0.2);
+    animation: s3TagFade 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes s3TagFade {
+    from { opacity: 0; transform: translateX(-6px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+/* Glass Floating Dropdown Menu */
+.s3-dropdown-menu {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    min-width: 220px;
+    background: rgba(14, 11, 9, 0.94);
+    border: 1px solid rgba(223, 189, 130, 0.35);
+    border-radius: 16px;
+    padding: 8px;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    box-shadow: 0 20px 48px rgba(0, 0, 0, 0.8), 0 0 25px rgba(223, 189, 130, 0.15);
+    z-index: 100;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-8px) scale(0.97);
+    transition: all 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+    pointer-events: none;
+}
+
+.s3-place-dropdown.is-open .s3-dropdown-menu {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0) scale(1);
+    pointer-events: auto;
+}
+
+/* Dropdown Menu Item */
+.s3-dropdown-item {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    gap: 10px;
+    padding: 10px 14px;
+    border: none;
+    background: transparent;
+    border-radius: 10px;
+    color: var(--s3-cream, #f5f0e8);
+    font-family: "Inter", sans-serif;
+    font-size: 13px;
+    cursor: pointer;
+    text-align: left;
+    transition: all 0.2s ease;
+}
+
+.s3-dropdown-item:hover,
+.s3-dropdown-item:focus-visible {
+    background: rgba(223, 189, 130, 0.16);
+    color: #ffffff;
+    outline: none;
+    transform: translateX(3px);
+}
+
+.s3-dropdown-item.is-selected {
+    background: rgba(223, 189, 130, 0.22);
+    color: var(--s3-gold, #dfbd82);
+    font-weight: 600;
+}
+
+.s3-item-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: rgba(223, 189, 130, 0.4);
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+}
+
+.s3-dropdown-item:hover .s3-item-dot,
+.s3-dropdown-item.is-selected .s3-item-dot {
+    background: var(--s3-gold, #dfbd82);
+    box-shadow: 0 0 8px var(--s3-gold, #dfbd82);
+}
+
+.s3-item-city {
+    font-family: "Playfair Display", serif;
+    font-size: 14px;
+    letter-spacing: 0.3px;
+    color: inherit;
+    flex: 1;
+}
+
+.s3-item-country {
+    font-size: 11px;
+    color: rgba(230, 214, 192, 0.55);
+    font-family: "Inter", sans-serif;
+    letter-spacing: 0.2px;
+}
+
+/* S3 Carousel Section */
+.s3-carousel-wrapper {
+    position: relative;
     width: 100%;
 }
 
+.s3-city-grid {
+    display: flex;
+    gap: clamp(14px, 1.8vw, 24px);
+    width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-behavior: smooth;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+    padding: 12px 6px 28px;
+    margin: 0;
+}
+
+.s3-city-grid::-webkit-scrollbar {
+    display: none;
+}
+
+/* Carousel Side Navigation Arrows */
+.s3-carousel-arrow {
+    position: absolute;
+    top: calc(50% - 10px);
+    transform: translateY(-50%);
+    z-index: 10;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: rgba(15, 12, 10, 0.82);
+    border: 1px solid rgba(223, 189, 130, 0.45);
+    color: var(--s3-gold, #dfbd82);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 22px;
+    line-height: 1;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.55), 0 0 15px rgba(223, 189, 130, 0.15);
+    transition: all 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+    user-select: none;
+}
+
+.s3-carousel-prev {
+    left: -20px;
+}
+
+.s3-carousel-next {
+    right: -20px;
+}
+
+.s3-carousel-arrow:hover {
+    background: rgba(223, 189, 130, 0.25);
+    border-color: #ffffff;
+    color: #ffffff;
+    transform: translateY(-50%) scale(1.1);
+    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.65), 0 0 20px rgba(223, 189, 130, 0.35);
+}
+
+.s3-carousel-arrow:disabled,
+.s3-carousel-arrow.is-hidden {
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(-50%) scale(0.8);
+}
+
 .s3-city-card {
-    min-width: 0;
+    flex: 0 0 clamp(230px, 20vw, 290px);
+    min-width: 220px;
+    max-width: 320px;
+    scroll-snap-align: start;
 
     margin: 0;
     padding: 8px 8px 0;
@@ -1595,12 +1855,21 @@ button {
     outline-offset: 4px;
 }
 
-.s3-city-card.s3-city-selected {
-    border-color: var(--s3-gold);
-
+/* Selected / Highlighted Card from Dropdown */
+.s3-city-card.s3-city-selected,
+.s3-city-card.s3-city-highlight {
+    transform: translateY(-8px) scale(1.03);
+    border-color: var(--s3-gold, #dfbd82);
+    background: rgba(30, 24, 18, 0.88);
     box-shadow:
-        0 0 0 1px rgba(223, 189, 130, 0.22),
-        0 22px 55px rgba(0, 0, 0, 0.42);
+        0 0 0 1.5px var(--s3-gold, #dfbd82),
+        0 0 35px rgba(223, 189, 130, 0.4),
+        0 24px 60px rgba(0, 0, 0, 0.6);
+}
+
+.s3-city-card.s3-city-highlight .s3-city-enter {
+    color: #ffffff;
+    text-shadow: 0 0 10px rgba(223, 189, 130, 0.8);
 }
 
 .s3-city-image {
@@ -1625,7 +1894,8 @@ button {
 .s3-city-card:hover .s3-city-image,
 .s3-city-card:focus-visible .s3-city-image,
 .s3-city-card:active .s3-city-image,
-.s3-city-card.s3-city-selected .s3-city-image {
+.s3-city-card.s3-city-selected .s3-city-image,
+.s3-city-card.s3-city-highlight .s3-city-image {
     transform: scale(1.09);
 
     filter: brightness(1.03) saturate(1.06);
@@ -1659,6 +1929,12 @@ button {
     background-image:
         linear-gradient(rgba(8, 6, 5, 0.08), rgba(8, 6, 5, 0.28)),
         var(--img-mumbai);
+}
+
+.s3-image-lisbon {
+    background-image:
+        linear-gradient(rgba(8, 6, 5, 0.08), rgba(8, 6, 5, 0.28)),
+        var(--img-lisbon);
 }
 
 .s3-city-copy {
@@ -1814,8 +2090,8 @@ button {
 
 @media (max-width: 900px) {
 
-    .s3-city-grid {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
+    .s3-city-card {
+        flex: 0 0 clamp(220px, 32vw, 260px);
     }
 
     .s3-city-image {
@@ -1840,8 +2116,24 @@ button {
         justify-content: flex-start;
     }
 
+    .s3-top-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 18px;
+    }
+
+    .s3-selector-wrap {
+        width: 100%;
+        justify-content: flex-start;
+        flex-wrap: wrap;
+    }
+
+    .s3-carousel-arrow {
+        display: none !important;
+    }
+
     .s3-intro {
-        margin-bottom: 26px;
+        margin-bottom: 0;
     }
 
     .s3-intro h2 {
@@ -1859,7 +2151,7 @@ button {
         gap: 12px;
 
         margin: 0 -18px;
-        padding: 4px 18px 12px;
+        padding: 4px 18px 16px;
 
         overflow-x: auto;
 
@@ -1872,8 +2164,8 @@ button {
     }
 
     .s3-city-card {
-        flex: 0 0 56%;
-        max-width: 230px;
+        flex: 0 0 65%;
+        max-width: 260px;
 
         scroll-snap-align: start;
     }

@@ -222,13 +222,14 @@ if (hasGsap && hasScrollTrigger) {
         gsap.set([
             ".scroll-three .s3-header",
             ".scroll-three .s3-intro",
-            ".scroll-three .s3-city-grid",
+            ".scroll-three .s3-selector-wrap",
+            ".scroll-three .s3-carousel-wrapper",
             ".scroll-three .s3-footer"
         ], { autoAlpha: 0 });
 
         gsap.set(".scroll-three .s3-header", { y: -22 });
-        gsap.set(".scroll-three .s3-intro", { y: 28 });
-        gsap.set(".scroll-three .s3-city-grid", { y: 22, scale: 1.04 });
+        gsap.set(".scroll-three .s3-intro, .scroll-three .s3-selector-wrap", { y: 28 });
+        gsap.set(".scroll-three .s3-carousel-wrapper", { y: 22, scale: 1.02 });
         gsap.set(".scroll-three .s3-city-copy", { y: 10 });
         gsap.set(".scroll-three .s3-footer", { y: 18 });
 
@@ -483,14 +484,14 @@ if (hasGsap && hasScrollTrigger) {
             ease: "power2.out"
         }, 0.78);
 
-        openingTimeline.to(".scroll-three .s3-intro", {
+        openingTimeline.to(".scroll-three .s3-intro, .scroll-three .s3-selector-wrap", {
             autoAlpha: 1,
             y: 0,
             duration: 0.08,
             ease: "power3.out"
         }, 0.79);
 
-        openingTimeline.to(".scroll-three .s3-city-grid", {
+        openingTimeline.to(".scroll-three .s3-carousel-wrapper", {
             autoAlpha: 1,
             y: 0,
             scale: 1,
@@ -701,6 +702,7 @@ const cityData = {
         endPitch: 58,
         endBearing: 24,
         videoFile: "videos/lisbon.mp4",
+        poster: "city-lisbon.webp",
         country: "Portugal",
         tagline: "Cobblestone Hills & Pastel Quarters"
     }
@@ -751,8 +753,57 @@ let isModalOpen = false;
 let isTransitioningToVideo = false;
 let mapFlightTimeout = null;
 let wasAmbientPlaying = false;
+let isAmbientSoundActive = true;
+let ambientPlayPromise = null;
+let pendingAmbientAutoplay = false;
 let currentCityData = null;
 let lastFocusedElement = null;
+
+function playAmbientAudio() {
+    const ambientAudio = document.getElementById("ambient-audio");
+    if (!ambientAudio || !isAmbientSoundActive || isModalOpen || (cityVideo && !cityVideo.paused)) {
+        return;
+    }
+
+    try {
+        ambientPlayPromise = ambientAudio.play();
+        if (ambientPlayPromise !== undefined) {
+            ambientPlayPromise
+                .then(() => {
+                    ambientPlayPromise = null;
+                    pendingAmbientAutoplay = false;
+                    // If modal was opened or video started while audio was resolving, pause immediately
+                    if (isModalOpen || (cityVideo && !cityVideo.paused)) {
+                        ambientAudio.pause();
+                    }
+                })
+                .catch(() => {
+                    ambientPlayPromise = null;
+                    if (!isModalOpen) {
+                        pendingAmbientAutoplay = true;
+                    }
+                });
+        }
+    } catch (e) {
+        ambientPlayPromise = null;
+    }
+}
+
+function stopAmbientAudio() {
+    const ambientAudio = document.getElementById("ambient-audio");
+    if (!ambientAudio) return;
+
+    if (ambientPlayPromise) {
+        ambientPlayPromise
+            .then(() => {
+                ambientAudio.pause();
+            })
+            .catch(() => {});
+    }
+    try {
+        ambientAudio.pause();
+    } catch (e) {}
+}
 
 const cityModal = document.getElementById("city-modal");
 const cityModalBackdrop = document.getElementById("city-modal-backdrop");
@@ -909,13 +960,8 @@ function openCityModal(cityKey) {
     currentCityData = city;
     lastFocusedElement = document.activeElement instanceof HTMLElement ? document.activeElement : null;
 
-    const ambientAudio = document.getElementById("ambient-audio");
-    if (ambientAudio) {
-        wasAmbientPlaying = !ambientAudio.paused;
-        if (wasAmbientPlaying) {
-            ambientAudio.pause();
-        }
-    }
+    wasAmbientPlaying = isAmbientSoundActive;
+    stopAmbientAudio();
 
     if (cityModalTitle) cityModalTitle.textContent = city.name;
     if (cityModalCountry) cityModalCountry.textContent = city.country || "";
@@ -1251,6 +1297,8 @@ function transitionToVideo(city) {
     if (isTransitioningToVideo) return;
     isTransitioningToVideo = true;
 
+    stopAmbientAudio();
+
     if (activeMap) {
         try { activeMap.stop(); } catch (e) {}
     }
@@ -1310,6 +1358,8 @@ function transitionToVideo(city) {
 function startCityVideo(city) {
     if (!cityVideo) return;
 
+    stopAmbientAudio();
+
     const isWalking = (typeof s2SelectedMode !== "undefined" && s2SelectedMode === "walking");
     if (videoModeBadge) {
         videoModeBadge.textContent = isWalking ? "WALKING TOUR" : "DRIVING TOUR";
@@ -1332,12 +1382,13 @@ function startCityVideo(city) {
         cityVideo.src = videoSrc;
     }
 
-    // Ensure audio & autoplay compatibility attributes
-    cityVideo.muted = true;
-    cityVideo.defaultMuted = true;
+    // Ensure video audio is unmuted by default
+    cityVideo.muted = false;
+    cityVideo.defaultMuted = false;
+    cityVideo.removeAttribute("muted");
     cityVideo.playsInline = true;
     cityVideo.setAttribute("playsinline", "");
-    updateAudioButtonUI(false);
+    updateAudioButtonUI(true);
 
     try {
         cityVideo.currentTime = 0;
@@ -1374,13 +1425,23 @@ function updateAudioButtonUI(isUnmuted) {
     }
 }
 
+if (cityVideo) {
+    cityVideo.addEventListener("play", stopAmbientAudio);
+    cityVideo.addEventListener("playing", stopAmbientAudio);
+}
+
 if (cityVideoAudioBtn) {
     cityVideoAudioBtn.addEventListener("click", toggleCityVideoAudio);
 }
 
 if (cityVideoBigPlay) {
     cityVideoBigPlay.addEventListener("click", () => {
+        stopAmbientAudio();
         if (cityVideo) {
+            cityVideo.muted = false;
+            cityVideo.defaultMuted = false;
+            cityVideo.removeAttribute("muted");
+            updateAudioButtonUI(true);
             cityVideo.play().then(() => {
                 hidePlayOverlay();
                 resetControlsTimer();
@@ -1392,6 +1453,7 @@ if (cityVideoBigPlay) {
 if (cityVideo) {
     cityVideo.addEventListener("click", () => {
         if (cityVideo.paused) {
+            stopAmbientAudio();
             cityVideo.play().then(() => {
                 hidePlayOverlay();
                 resetControlsTimer();
@@ -1567,10 +1629,9 @@ function closeCityModal() {
         restoreModalFocus();
     }
 
-    // resume ambient audio
-    const ambientAudio = document.getElementById("ambient-audio");
-    if (ambientAudio && wasAmbientPlaying) {
-        ambientAudio.play().catch(() => {});
+    // resume ambient audio if active
+    if (wasAmbientPlaying && isAmbientSoundActive) {
+        playAmbientAudio();
         wasAmbientPlaying = false;
     }
 }
@@ -1678,27 +1739,295 @@ document.addEventListener("keydown", (e) => {
     }
 });
 
-// city cards
-const s3CityCards = document.querySelectorAll(".s3-city-card");
+// ==========================================
+// City Carousel & Place Selector Dropdown
+// ==========================================
 
-s3CityCards.forEach((card) => {
-    card.addEventListener("click", (e) => {
-        e.preventDefault();
+function scrollCarouselToCity(cityKey) {
+    const carousel = document.getElementById("s3-city-carousel");
+    if (!carousel) return;
 
-        s3CityCards.forEach((item) => {
-            item.classList.remove("s3-city-selected");
-            item.setAttribute("aria-pressed", "false");
+    const normalizedKey = (cityKey || "").toLowerCase().replace(/\s+/g, "");
+    const card = document.querySelector(`.s3-city-card[data-city-key="${normalizedKey}"]`) ||
+                 document.querySelector(`.s3-city-card[data-city="${normalizedKey}"]`) ||
+                 Array.from(document.querySelectorAll(".s3-city-card")).find(c => {
+                     const k = (c.getAttribute("data-city-key") || c.getAttribute("data-city") || "").toLowerCase().replace(/\s+/g, "");
+                     return k === normalizedKey;
+                 });
+
+    if (!card) return;
+
+    const carouselRect = carousel.getBoundingClientRect();
+    const cardRect = card.getBoundingClientRect();
+    const currentScroll = carousel.scrollLeft;
+    const cardCenterRelativeToCarousel = (cardRect.left - carouselRect.left) + (cardRect.width / 2);
+    const targetScroll = currentScroll + cardCenterRelativeToCarousel - (carouselRect.width / 2);
+    const clampedTarget = Math.max(0, Math.min(targetScroll, carousel.scrollWidth - carousel.clientWidth));
+
+    if (typeof gsap !== "undefined") {
+        gsap.to(carousel, {
+            scrollLeft: clampedTarget,
+            duration: 0.42,
+            ease: "power2.out",
+            onUpdate: () => {
+                updateCarouselArrows();
+            },
+            onComplete: () => {
+                updateCarouselArrows();
+            }
+        });
+    } else {
+        carousel.scrollTo({
+            left: clampedTarget,
+            behavior: "smooth"
+        });
+        setTimeout(updateCarouselArrows, 450);
+    }
+}
+
+function highlightCityCard(cityKey) {
+    const normalizedKey = (cityKey || "").toLowerCase().replace(/\s+/g, "");
+    const cards = document.querySelectorAll(".s3-city-card");
+
+    cards.forEach((card) => {
+        const k = (card.getAttribute("data-city-key") || card.getAttribute("data-city") || "").toLowerCase().replace(/\s+/g, "");
+        if (k === normalizedKey) {
+            card.classList.add("s3-city-selected", "s3-city-highlight");
+            card.setAttribute("aria-pressed", "true");
+            card.focus({ preventScroll: true });
+
+            if (typeof gsap !== "undefined") {
+                gsap.killTweensOf(card);
+                gsap.fromTo(card, 
+                    { scale: 0.98 }, 
+                    { scale: 1.03, duration: 0.35, ease: "back.out(1.8)" }
+                );
+            }
+        } else {
+            card.classList.remove("s3-city-selected", "s3-city-highlight");
+            card.setAttribute("aria-pressed", "false");
+            if (typeof gsap !== "undefined") {
+                gsap.to(card, { scale: 1, duration: 0.25, ease: "power1.out" });
+            }
+        }
+    });
+}
+
+function updateCarouselArrows() {
+    const carousel = document.getElementById("s3-city-carousel");
+    const prevBtn = document.getElementById("s3-carousel-prev");
+    const nextBtn = document.getElementById("s3-carousel-next");
+    if (!carousel) return;
+
+    const maxScroll = carousel.scrollWidth - carousel.clientWidth;
+    const currentScroll = carousel.scrollLeft;
+
+    if (prevBtn) {
+        if (currentScroll <= 12) {
+            prevBtn.classList.add("is-hidden");
+        } else {
+            prevBtn.classList.remove("is-hidden");
+        }
+    }
+
+    if (nextBtn) {
+        if (currentScroll >= maxScroll - 12) {
+            nextBtn.classList.add("is-hidden");
+        } else {
+            nextBtn.classList.remove("is-hidden");
+        }
+    }
+}
+
+function setupCitySelectorAndCarousel() {
+    const dropdown = document.getElementById("s3-place-dropdown");
+    const dropdownBtn = document.getElementById("s3-dropdown-btn");
+    const selectedTag = document.getElementById("s3-selected-place-tag");
+    const dropdownItems = document.querySelectorAll(".s3-dropdown-item");
+    const carousel = document.getElementById("s3-city-carousel");
+    const prevBtn = document.getElementById("s3-carousel-prev");
+    const nextBtn = document.getElementById("s3-carousel-next");
+    const cityCards = document.querySelectorAll(".s3-city-card");
+
+    function openDropdown() {
+        if (!dropdown || !dropdownBtn) return;
+        dropdown.classList.add("is-open");
+        dropdownBtn.setAttribute("aria-expanded", "true");
+        const firstItem = dropdown.querySelector(".s3-dropdown-item");
+        if (firstItem) firstItem.focus();
+    }
+
+    function closeDropdown() {
+        if (!dropdown || !dropdownBtn) return;
+        dropdown.classList.remove("is-open");
+        dropdownBtn.setAttribute("aria-expanded", "false");
+    }
+
+    if (dropdownBtn && dropdown) {
+        dropdownBtn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            if (dropdown.classList.contains("is-open")) {
+                closeDropdown();
+            } else {
+                openDropdown();
+            }
+        });
+    }
+
+    // Close on outside click
+    document.addEventListener("click", (e) => {
+        if (dropdown && dropdown.classList.contains("is-open")) {
+            if (!dropdown.contains(e.target)) {
+                closeDropdown();
+            }
+        }
+    });
+
+    // Close on Escape
+    document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape" && dropdown && dropdown.classList.contains("is-open")) {
+            closeDropdown();
+            if (dropdownBtn) dropdownBtn.focus();
+        }
+    });
+
+    // Dropdown items click
+    dropdownItems.forEach((item, index) => {
+        item.addEventListener("click", (e) => {
+            e.stopPropagation();
+            const cityKey = item.getAttribute("data-city-key");
+            const cityName = item.getAttribute("data-city-name") || item.querySelector(".s3-item-city")?.textContent || cityKey;
+
+            // 1. Update active tag next to selector: [ Choose a place ▾ ]   Paris
+            if (selectedTag) {
+                selectedTag.textContent = cityName;
+                selectedTag.style.display = "inline-flex";
+            }
+
+            // 2. Mark active option in dropdown
+            dropdownItems.forEach((opt) => {
+                const optKey = opt.getAttribute("data-city-key");
+                opt.classList.toggle("is-selected", optKey === cityKey);
+                opt.setAttribute("aria-selected", String(optKey === cityKey));
+            });
+
+            // 3. Close dropdown
+            closeDropdown();
+            if (dropdownBtn) dropdownBtn.focus();
+
+            // 4. Smoothly scroll carousel to selected city
+            scrollCarouselToCity(cityKey);
+
+            // 5. Highlight card with gold border and scale
+            highlightCityCard(cityKey);
         });
 
-        card.classList.add("s3-city-selected");
-        card.setAttribute("aria-pressed", "true");
-
-        const rawCity = card.getAttribute("data-city") || "";
-        const cityKey = rawCity.toLowerCase().replace(/\s+/g, "");
-
-        openCityModal(cityKey);
+        item.addEventListener("keydown", (e) => {
+            if (e.key === "ArrowDown") {
+                e.preventDefault();
+                const nextItem = dropdownItems[index + 1] || dropdownItems[0];
+                if (nextItem) nextItem.focus();
+            } else if (e.key === "ArrowUp") {
+                e.preventDefault();
+                const prevItem = dropdownItems[index - 1] || dropdownItems[dropdownItems.length - 1];
+                if (prevItem) prevItem.focus();
+            }
+        });
     });
-});
+
+    // Carousel buttons & scroll
+    if (carousel) {
+        if (prevBtn) {
+            prevBtn.addEventListener("click", () => {
+                const cardWidth = carousel.querySelector(".s3-city-card")?.offsetWidth || 280;
+                carousel.scrollBy({ left: -(cardWidth + 24), behavior: "smooth" });
+            });
+        }
+        if (nextBtn) {
+            nextBtn.addEventListener("click", () => {
+                const cardWidth = carousel.querySelector(".s3-city-card")?.offsetWidth || 280;
+                carousel.scrollBy({ left: cardWidth + 24, behavior: "smooth" });
+            });
+        }
+
+        carousel.addEventListener("scroll", () => {
+            updateCarouselArrows();
+        }, { passive: true });
+
+        setTimeout(updateCarouselArrows, 200);
+        window.addEventListener("resize", updateCarouselArrows);
+
+        // Smooth drag-to-scroll on desktop
+        let isDown = false;
+        let startX = 0;
+        let scrollLeftStart = 0;
+        let hasMoved = false;
+
+        carousel.addEventListener("mousedown", (e) => {
+            if (e.button !== 0) return;
+            isDown = true;
+            hasMoved = false;
+            startX = e.pageX - carousel.offsetLeft;
+            scrollLeftStart = carousel.scrollLeft;
+            carousel.style.cursor = "grabbing";
+        });
+
+        window.addEventListener("mousemove", (e) => {
+            if (!isDown) return;
+            const x = e.pageX - carousel.offsetLeft;
+            const walk = (x - startX);
+            if (Math.abs(walk) > 6) {
+                hasMoved = true;
+                e.preventDefault();
+                carousel.scrollLeft = scrollLeftStart - walk;
+            }
+        });
+
+        window.addEventListener("mouseup", () => {
+            if (!isDown) return;
+            isDown = false;
+            carousel.style.cursor = "";
+            setTimeout(() => { hasMoved = false; }, 50);
+        });
+
+        // City cards click -> enter city tour
+        cityCards.forEach((card) => {
+            card.addEventListener("click", (e) => {
+                if (hasMoved) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    return;
+                }
+
+                e.preventDefault();
+                e.stopPropagation();
+                stopAmbientAudio();
+
+                cityCards.forEach((item) => {
+                    item.classList.remove("s3-city-selected", "s3-city-highlight");
+                    item.setAttribute("aria-pressed", "false");
+                });
+
+                card.classList.add("s3-city-selected", "s3-city-highlight");
+                card.setAttribute("aria-pressed", "true");
+
+                const rawCity = card.getAttribute("data-city-key") || card.getAttribute("data-city") || "";
+                const cityKey = rawCity.toLowerCase().replace(/\s+/g, "");
+
+                // Update selected tag in dropdown bar
+                const cityName = card.getAttribute("data-city") || card.querySelector(".s3-city-name")?.textContent || rawCity;
+                if (selectedTag) {
+                    selectedTag.textContent = cityName;
+                    selectedTag.style.display = "inline-flex";
+                }
+
+                openCityModal(cityKey);
+            });
+        });
+    }
+}
+
+setupCitySelectorAndCarousel();
 
 // open a city from ?openCity=paris
 const searchParams = new URLSearchParams(window.location.search);
@@ -1745,7 +2074,29 @@ function setupSoundControls() {
         ambientAudio.volume = 0.25;
     }
 
+    const unlockAudioOnInteraction = (e) => {
+        // If interaction is on a city card or inside the modal, do NOT trigger ambient audio
+        if (e && e.target && e.target.closest && e.target.closest(".s3-city-card, #city-modal, .city-modal")) {
+            return;
+        }
+
+        if (pendingAmbientAutoplay && isAmbientSoundActive && !isModalOpen && (!cityVideo || cityVideo.paused)) {
+            playAmbientAudio();
+        }
+        if (!pendingAmbientAutoplay) {
+            interactionEvents.forEach((evt) => {
+                window.removeEventListener(evt, unlockAudioOnInteraction);
+            });
+        }
+    };
+
+    const interactionEvents = ["click", "keydown", "touchstart", "scroll"];
+    interactionEvents.forEach((evt) => {
+        window.addEventListener(evt, unlockAudioOnInteraction, { passive: true });
+    });
+
     const setSoundState = (isActive) => {
+        isAmbientSoundActive = isActive;
         controls.forEach((control) => {
             control.classList.toggle("s2-sound-active", isActive);
             control.setAttribute("aria-pressed", String(isActive));
@@ -1756,23 +2107,21 @@ function setupSoundControls() {
             }
         });
 
-        if (ambientAudio) {
-            if (isActive) {
-                const playPromise = ambientAudio.play();
-                if (playPromise !== undefined) {
-                    playPromise.catch(() => {
-                    });
-                }
-            } else {
-                ambientAudio.pause();
-            }
+        if (isActive) {
+            playAmbientAudio();
+        } else {
+            pendingAmbientAutoplay = false;
+            stopAmbientAudio();
         }
     };
 
+    // Ambient music unmuted / ON by default
+    setSoundState(true);
+
     controls.forEach((control) => {
-        control.addEventListener("click", () => {
-            const currentlyActive = control.classList.contains("s2-sound-active");
-            setSoundState(!currentlyActive);
+        control.addEventListener("click", (e) => {
+            e.stopPropagation();
+            setSoundState(!isAmbientSoundActive);
         });
     });
 }
