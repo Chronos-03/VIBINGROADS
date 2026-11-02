@@ -2175,7 +2175,6 @@ function setupSoundControls() {
         }
     };
 
-    // Ambient music unmuted / ON by default
     setSoundState(true);
 
     controls.forEach((control) => {
@@ -2187,3 +2186,4 @@ function setupSoundControls() {
 }
 
 setupSoundControls();
+

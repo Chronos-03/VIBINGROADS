@@ -471,7 +471,7 @@ button {
 }
 
 .reveal-arrow {
-    font-size: 1.4rem;
+    font-size: 11px;
     line-height: 1;
 }
 
@@ -1814,8 +1814,13 @@ button {
 
     display: flex;
     flex-direction: column;
+    align-self: stretch;
+    position: relative;
+    isolation: isolate;
+    flex: 0 0 clamp(230px, 22vw, 290px);
 
     overflow: hidden;
+    scroll-snap-align: start;
 
     border: 1px solid rgba(255, 255, 255, 0.17);
     border-radius: 17px;
@@ -1860,37 +1865,50 @@ button {
 /* Selected / Highlighted Card from Dropdown */
 .s3-city-card.s3-city-selected,
 .s3-city-card.s3-city-highlight {
-    transform: translateY(-8px) scale(1.03);
+    transform: translateY(-5px) scale(1.03);
     border-color: var(--s3-gold, #dfbd82);
-    background: rgba(30, 24, 18, 0.88);
+    background: rgba(30, 24, 18, 0.88);          
     box-shadow:
         0 0 0 1.5px var(--s3-gold, #dfbd82),
         0 0 35px rgba(223, 189, 130, 0.4),
         0 24px 60px rgba(0, 0, 0, 0.6);
 }
+.s3-city-card.s3-city-selected::before,
+.s3-city-card.s3-city-highlight::before {
+    opacity: 1;
+}
 
 .s3-city-card.s3-city-highlight .s3-city-enter {
-    color: #ffffff;
+    color: #f5dba9;
     text-shadow: 0 0 10px rgba(223, 189, 130, 0.8);
 }
 
 .s3-city-image {
     display: block;
-
+    position: relative;
+    flex-shrink: 0;
     width: 100%;
     height: clamp(200px, 33vh, 330px);
-
-    border-radius: 11px;
-
+    overflow: hidden;
+    border-radius: 12px;
+    background-color: #17191e;
     background-position: center;
     background-size: cover;
     background-repeat: no-repeat;
 
+    transform: scale(1);
     transform-origin: center;
 
-    transition:
-        transform 0.9s cubic-bezier(0.22, 1, 0.36, 1),
-        filter 0.5s ease;
+   transition:
+        transform 750ms cubic-bezier(0.22, 1, 0.36, 1),
+        filter 500ms ease;
+}
+
+@media (hover: hover) and (pointer: fine){
+    .s3-city-card:hover .s3-city-image{
+         transform: scale(1.035);
+        filter: brightness(1.06) saturate(1.04);
+    }
 }
 
 .s3-city-card:hover .s3-city-image,
@@ -1903,6 +1921,10 @@ button {
     filter: brightness(1.03) saturate(1.06);
 }
 
+.s3-city-card.s3-city-selected .s3-city-image,
+.s3-city-card.s3-city-highlight .s3-city-image {
+    filter: brightness(1.04) saturate(1.05);
+}
 .s3-image-tokyo {
     background-image:
         linear-gradient(rgba(8, 6, 5, 0.08), rgba(8, 6, 5, 0.28)),
@@ -1972,45 +1994,71 @@ button {
 }
 
 .s3-city-copy {
+    position: relative;
+    z-index: 1;
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    gap: clamp(18px, 3.6vh, 34px);
-
-    padding: 16px 7px 20px;
+    justify-content: space-between;
+    flex: 1;
+    gap: 22px;
+    padding: 18px 9px 13px;
 }
 
 .s3-city-name {
-    color: #fff;
-
-    font-family: "Playfair Display", serif;
-    font-size: clamp(1.05rem, 1.45vw, 1.4rem);
+    display: block;
+    max-width: 100%;
+    color: #f7f3ed;
+    font-family: "Playfair Display", Georgia, serif;
+    font-size: clamp(1.1rem, 1.5vw, 1.4rem);
     font-weight: 400;
-    line-height: 1.2;
-    letter-spacing: 0.2px;
+    line-height: 1.25;
+    letter-spacing: 0.1px;
+    white-space: normal;
+    overflow-wrap: break-word;
+    transition:
+        color 300ms ease,
+        transform 300ms ease;
+}
 
-    white-space: nowrap;
+@media (hover: hover) and (pointer: fine) {
+    .s3-city-card:hover .s3-city-name {
+        color: #ffffff;
+    }
 }
 
 .s3-city-enter {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
-
-    color: var(--s3-gold);
-
-    font-size: 8px;
-    font-weight: 500;
-    letter-spacing: 1.8px;
-
+    gap: 9px;
+    color: var(--s3-gold, #dfbd82);
+    font-family: "Inter", sans-serif;
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 1.7px;
+    line-height: 1.4;
     white-space: nowrap;
+    transition:
+        color 300ms ease,
+        letter-spacing 300ms ease;
 }
 
-.s3-enter-arrow {
-    font-size: 11px;
-    line-height: 1;
 
-    transition: transform 0.3s ease;
+.s3-enter-arrow {
+    font-size: 13px;
+    line-height: 1;
+    display: inline-block;
+    transition: transform 300ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@media (hover: hover) and (pointer: fine) {
+    .s3-city-card:hover .s3-enter-arrow {
+        transform: translateX(4px);
+    }
+
+    .s3-city-card:hover .s3-city-enter {
+        color: #f5dba9;
+    }
 }
 
 .s3-city-card:hover .s3-enter-arrow,
@@ -2120,6 +2168,49 @@ button {
         letter-spacing: 2.4px;
     }
 
+}
+
+.s3-city-card ::before{
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 14%;
+    right: 14%;
+    height: 1px;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(223, 189, 130, 0.65),
+      transparent );
+
+    opacity: 0.45;
+    pointer-events: none;
+    z-index: 3;
+    transition: opacity 300ms ease;
+}
+
+@media(hover: hover) and (pointer: fine){
+     .s3-city-card:hover{
+        transform: translateY(-6px);
+        border-color: rgba(223, 189, 130, 0.65);
+        box-shadow:
+            0 12px 30px rgba(0, 0, 0, 0.3),
+            0 28px 60px rgba(0, 0, 0, 0.28),
+            0 0 22px rgba(223, 189, 130, 0.055);
+     }
+
+    .s3-city-card:hover::before {
+      opacity: 1;
+    }
+}
+
+.s3-card-activate{
+    transform: translateY(-2px);
+}
+
+.s3-city-card:focus-visible{
+    outline: 2px solid var(--s3-gold, #dfbd82);
+    outline-offset: 4px;
 }
 
 @media (max-width: 900px) {
@@ -3446,3 +3537,4 @@ body.city-modal-open {
     color: var(--s3-gold, #dfbd82);
     margin-right: 6px;
 }
+

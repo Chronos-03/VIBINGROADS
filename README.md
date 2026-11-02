@@ -1,54 +1,46 @@
 # VIBING ROADS
+A cinematic, scroll-driven web experience that takes you on a journey through atmospheric streets of cities around the world. Built with smooth  animations and a story-like progression that guides users from exploration to city selection and they can listen to local radio and enjoy the view either by car or walking.
 
-A scroll-driven site that walks you through a few street scenes, then lets you pick a city and explore it by car or on foot.
+## What is it?
+VIBING ROADS is an immersive single page website that simulates the feeling of wandering through real streets.It features:
+   - Cinematic storytelling - A multi-step journey through different scenes (Notice → Explore → Choose)
+   - GSAP powered animations -  Smooth scroll-triggered transitions with camera-like zoom effects
+   - City selection - Choose the place you want to wander around
+   - Mode selection - Pick between driving or walking perspectives
+   - Ambient experience - Local time display and optional ambient sound
+   - Interactive details - Revealing hidden elements as you explore
 
-## What it does
+## How it's made:
+Technologies Used:
+   - HTML5 - Semantic structure with multiple scroll sections
+   - CSS3 - Modern styling with flexbox/grid, backdrop filters, animations
+   - Vanilla JavaScript - Interactive elements and logic
+   - GSAP(GreenSock)- Animation library with ScrollTrigger, ScrollToPlugin
+   - Google Fonts - Cinzel, Playfair Display, Inter
 
-- Story flow: Notice -> Explore -> Choose
-- Cities: Tokyo, Paris, New York, Istanbul, Mumbai
-- Driving or walking mode
-- Ambient sound and a local clock
-- A few hidden details to find
+## Key Features:
 
-## How it's built
+   * Cinematic Scroll Experience
+    The site uses GSAP ScrollTrigger to create a pinned scroll experience where the camera "zooms" through different locations. Each scene transitions smoothly into the next as you scroll.
 
-- HTML, CSS and vanilla JS
-- GSAP with ScrollTrigger and ScrollToPlugin
-- Google Fonts: Cinzel, Playfair Display, Inter
-- Mapbox GL for the 3D city view
+    * Scene Progression
+        - Hero Section - Landing page with title "VIBING ROADS" and "Explore" button
+        - Scroll One (Notice) - First street scene with a journey step indicator and a detail card
+        - Scroll Two (Explore) - Mode selection (Driving vs Walking)
+        - Scroll Three (Choose) - City selection grid
 
-### Scrolling
 
-ScrollTrigger pins each scene and moves the camera through it as you scroll.
+    * Interactive Elements
+        - Mouse parallax on hero background
+        - Journey step navigation - Click to jump to different stages
+        - Detail reveal - Click to uncover hidden text
+        - Mode cards - Toggle between driving and walking
+        - City cards - Select a city
+        - Sound toggle - Play/pause ambient audio
+        - Live clock - Shows local time in multiple sections
 
-### Scenes
 
-1. Hero: title and explore button
-2. Notice: first street scene, journey steps and a detail card
-3. Explore: pick driving or walking
-4. Choose: city cards
-
-### Interactions
-
-- Hero background follows the mouse
-- Soft trailing cursor with a golden glow that expands into a labeled ring over links
-- Journey steps jump to a scene
-- The detail card reveals hidden text
-- Mode and city cards select
-- Sound toggle for ambient audio
-- Live clock
-
-### Small screens
-
-- Desktop keeps the pinned scroll effects, mobile switches to horizontal city scrolling
-- Reduced motion settings are respected
-
-### Loading
-
-- Images are WebP, with smaller versions on mobile
-- Mapbox loads when a city is opened
-- Videos load when a tour starts
-
-## Getting started
-
-Open `index.html` in a browser. There is no build step.
+    * Responsive Design
+        - Desktop-optimized cinematic experience with GSAP animations
+        - Mobile-friendly layout with horizontal scrolling for city selection
+        - Respects prefers-reduced-motion for accessibility
